@@ -16,6 +16,7 @@ fileDeID(
   xwalk,
   compare_mrn_numeric = attr(xwalk, "compare_mrn_numeric"),
   outputfile = NULL,
+  usefread = TRUE,
   verbose = 0
 )
 }
@@ -42,10 +43,12 @@ fileDeID(
 
 \item{outputfile}{Name of file to write de-identified data. If NULL (the default) the data are not written, only returned from the function.}
 
+\item{usefread}{If TRUE (default), use data.table::fread and data.table::fwrite. If FALSE, use utils::read.csv and utils::write.csv. TRUE is preferable as the latter adds double quotes around almost all values when producing output file.}
+
 \item{verbose}{Higher values produce more output to console.  Default is 0, no output.}
 }
 \value{
-data.frame with variables tokenized, dateshifted, removed, and blanked, as requested.
+data.frame (invisibly and even if usefread == TRUE) with variables tokenized, dateshifted, removed, and blanked, as requested.
 }
 \description{
 De-identify machine extraction data

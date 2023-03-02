@@ -11,9 +11,10 @@
 #' @param xwalk data.frame containing cross walk information. Usually the output from loadxwalks().
 #' @param compare_mrn_numeric Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is TRUE by default.
 #' @param outputfile Name of file to write de-identified data. If NULL (the default) the data are not written, only returned from the function.
+#' @param usefread If TRUE (default), use data.table::fread and data.table::fwrite. If FALSE, use utils::read.csv and utils::write.csv. TRUE is preferable as the latter adds double quotes around almost all values when producing output file.
 #' @param verbose Higher values produce more output to console.  Default is 0, no output.
 #'
-#' @return data.frame with variables tokenized, dateshifted, removed, and blanked, as requested.
+#' @return data.frame (invisibly and even if usefread == TRUE) with variables tokenized, dateshifted, removed, and blanked, as requested.
 #' @export
 #'
 #' @examples
@@ -43,6 +44,7 @@ fileDeID <- function(
     compare_mrn_numeric = attr(xwalk, "compare_mrn_numeric"),
 
     outputfile = NULL,
+    usefread = TRUE,
 
     verbose = 0) {
 
@@ -59,11 +61,20 @@ fileDeID <- function(
 
   if (verbose > 0) cat(sprintf("Processing %s\n", filetodeid))
 
-  varnames <- names(utils::read.csv(
-    filetodeid,
-    check.names = FALSE, # allow non-standard names
-    header = TRUE,
-    nrows = 0)) # To get variable names
+  varnames <- if (isTRUE(usefread)) {
+    names(data.table::fread(
+      file = filetodeid,
+      check.names = FALSE, # default, actually
+      data.table = FALSE,
+      header = TRUE,
+      nrows = 0))
+  } else if (isFALSE(usefread)) {
+    names(utils::read.csv(
+      filetodeid,
+      check.names = FALSE, # allow non-standard names
+      header = TRUE,
+      nrows = 0)) # To get variable names
+  } else stop("usefread must be TRUE or FALSE.")
 
   if (verbose > 1) {
     cat(sprintf("%s Variable Names\n", filetodeid))
@@ -94,10 +105,18 @@ fileDeID <- function(
   # don't read those variables to be removed
   vartype[intersect(variablestoremove, varnames)] <- "NULL"
 
-  dat <- utils::read.csv(
-    filetodeid,
-    check.names = FALSE, # allow non-standard names
-    colClasses = vartype)
+  dat <- if (isTRUE(usefread)) {
+    data.table::fread(
+      file = filetodeid,
+      check.names = FALSE, # allow non-standard names
+      data.table = FALSE,
+      colClasses = vartype)
+  } else {
+    utils::read.csv(
+      filetodeid,
+      check.names = FALSE, # allow non-standard names
+      colClasses = vartype)
+  }
 
   if (verbose > 0) {
     cat(sprintf("%d rows read from %s\n", nrow(dat), filetodeid))
@@ -112,7 +131,9 @@ fileDeID <- function(
   }
 
   # blank those to be blanked
-  dat[intersect(variablestoblank, names(dat))] <- ""
+  # dat[intersect(variablestoblank, names(dat))] <- ""
+  # this version is written more compactly. i.e., ,, vs ,"",
+  dat[intersect(variablestoblank, names(dat))] <- NA_character_
 
   # use crosswalk
   # replace mrn with tokenized mrn
@@ -163,11 +184,19 @@ fileDeID <- function(
 
   if (!is.null(outputfile)) {
     cat(sprintf("Writing to %s\n", outputfile))
-    utils::write.csv(
-      dat,
-      file = outputfile,
-      row.names = FALSE,
-      na = "")
+    if (isTRUE(usefread)) {
+      data.table::fwrite(
+        dat,
+        file = outputfile,
+        row.names = FALSE, # default, actually
+        na = "") # default, actually
+    } else {
+      utils::write.csv(
+        dat,
+        file = outputfile,
+        row.names = FALSE,
+        na = "")
+    }
   }
 
   return(invisible(dat))
