@@ -59,7 +59,11 @@ fileDeID <- function(
 
   if (verbose > 0) cat(sprintf("Processing %s\n", filetodeid))
 
-  varnames <- names(utils::read.csv(filetodeid, header = TRUE, nrows = 0)) # To get variable names
+  varnames <- names(utils::read.csv(
+    filetodeid,
+    check.names = FALSE, # allow non-standard names
+    header = TRUE,
+    nrows = 0)) # To get variable names
 
   if (verbose > 1) {
     cat(sprintf("%s Variable Names\n", filetodeid))
@@ -90,7 +94,10 @@ fileDeID <- function(
   # don't read those variables to be removed
   vartype[intersect(variablestoremove, varnames)] <- "NULL"
 
-  dat <- utils::read.csv(filetodeid, colClasses = vartype)
+  dat <- utils::read.csv(
+    filetodeid,
+    check.names = FALSE, # allow non-standard names
+    colClasses = vartype)
 
   if (verbose > 0) {
     cat(sprintf("%d rows read from %s\n", nrow(dat), filetodeid))
