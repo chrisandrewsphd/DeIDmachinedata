@@ -1,0 +1,4 @@
+Last Name:,First Name:,Pat-ID:,D.o.Birth:,Exam Date:,Exam Time:,Exam Eye:,Exam Type:,Exam Comment:,Status,Error,Rf F (mm):,Rs F (mm):,Rh F (mm):,Rv F (mm):,K1 F (D):,K2 F (D):,Rm F (mm):,Km F (D):,Axis F (flat):,Astig F (D):,R Per F (mm),R Min (mm)
+Smith,Joe,2,1/1/2010,1/2/2020,123,OS,penta,PII,Good,None,9.3,,4.9,,50,60,8.1,35,75,10,5,9
+Smith,Joe,2,1/1/2010,1/31/2020,234,OS,penta,PII,"Good, Really Good!",None,9.3,8.7,4.1,6.3,40,50,8,30,80,30,5.5,10
+Doe,Jane,9,6/6/1950,12/31/1999,321,OD,penta,PII,Bad,Yes,9,8.7,,6.3,0,0,7.9,10,20,30,1.1,6
