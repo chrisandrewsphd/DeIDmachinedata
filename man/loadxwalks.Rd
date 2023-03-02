@@ -39,13 +39,17 @@ A data.frame with columns PAT_MRN, PAT_MRN_T, and SHIFT_NUM if dateshiftfile is 
 Load crosswalk(s) needed to de-identify machine data. One crosswalk between mrns and tokenized mrns. Optionally, a second file with mrns and date shift variable
 }
 \examples{
-# xwalk <- loadxwalks(
-#   tokenfile = "J:/EPIC-Ophthalmology/DataMart/2022-11/all/full_pat_token_crosswalk.csv",
-#   t_varname_mrn = "PAT_MRN",
-#   t_varname_mrn_token = "PAT_MRN_T",
-#   dateshiftfile = "J:/EPIC-Ophthalmology/DataMart/2022-11/all/um_oph_pat_shift_num.csv",
-#   ds_varname_mrn = "PAT_MRN",
-#   ds_varname_dateshift = "SHIFT_NUM",
-#   compare_mrn_numeric = TRUE,
-#   verbose = 2)
+dataloc <- system.file("extdata", package = "DeIDmachinedata")
+fn1 <- sprintf("\%s/xwalk1.csv", dataloc)
+fn2 <- sprintf("\%s/xwalk2.csv", dataloc)
+xwalk <- loadxwalks(
+  tokenfile = fn1,
+  t_varname_mrn = "PAT_MRN",
+  t_varname_mrn_token = "PAT_MRN_T",
+  dateshiftfile = fn2,
+  ds_varname_mrn = "PAT_MRN",
+  ds_varname_dateshift = "SHIFT_NUM",
+  compare_mrn_numeric = TRUE,
+  verbose = 2)
+xwalk
 }
