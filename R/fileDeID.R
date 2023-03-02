@@ -33,7 +33,7 @@
 #'   xwalk = xwalk,
 #'   outputfile = NULL,
 #'   verbose = 2)
-#' head(deidfile)
+#' deidfile # Note last test was on a person not in the crosswalk
 fileDeID <- function(
     filetodeid,
     fd_varname_mrn = "PAT_MRN",
