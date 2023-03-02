@@ -1,130 +1,149 @@
 fileDeID <- function(
     filetodeid,
+    fd_varname_mrn = "PAT_MRN",
     variablestoremove = character(0),
     variablestoblank = character(0),
-    variablestotokenize = list(),
-    variablestodateshift = character(0),
-    tokenfile,
+    datevariablestodateshift = character(0),
+    dateformat = "%Y-%m-%d",
+    datetimevariablestodateshift = character(0),
+    datetimeformat = "%Y-%m-%d %H:%M:%OS",
     
-    dateshiftfile,
-    varname_dateshift = "SHIFT_NUM",
+    xwalk,
+    
+    compare_mrn_numeric = attr(xwalk, "compare_mrn_numeric"),
+    
+    outputfile = NULL,
+    
     verbose = 0) {
+  
+  if (missing(xwalk)) stop("xwalk must be provided. See loadxwalks().")
+  if (!("PAT_MRN" %in% names(xwalk))) stop("PAT_MRN must be a column in xwalk.")
+  if (!("PAT_MRN_T" %in% names(xwalk))) stop("PAT_MRN_T must be a column in xwalk.")
+  if (!("SHIFT_NUM" %in% names(xwalk)) && ((length(datevariablestodateshift)>1) || length(datetimevariablestodateshift)>1)) stop("SHIFT_NUM must be a column in xwalk if any date or datetime variables are to be shifted.")
+  
 
-  # De-ID FORUM CSV
-  # A, FileName, Blank/Delete/Cut? Remove Directory portion? What is PHI? Replace by a VF_ID?
-  # B, Name, Blank/Delete/Cut
-  # C, MRN0, Blank/Delete/Cut (used to create D)
-  # D, MRN, Replace with PAT_MRN (crosswalk or Datavant?). Add PAT_ID?
-  # E, DOB, Blank/Delete/Cut (user should get from patient file)
-  # F, Age, Blank/Delete/Cut (user should get DOB from patient file and compute age)
-  # G, Sex, Blank/Delete/Cut (user should get from patient file)
-  # H, Institution, Blank/Delete/Cut, Replace by Site_ID?
-  # J, Date, Blank/Delete/Cut. (used to create L)
-  # K, Time, Blank/Delete/Cut. (used to create L)
-  # L, DateTime, Date-shift (crosswalk or Datavant?)
-  # M-BO, no change
+  # File(s) to Deidentify
+  if (missing(filetodeid)) stop("Must provide file to deidentify.")
+  if (length(filetodeid)>1) stop("Deidentify one file at a time.")
   
   
-  # MRN to DATAVANT TOKEN and/or USID crosswalk
-  xwalk1names <- names(read.csv(tokenfile, nrows = 0))
-  vartype <- rep("NULL", length(xwalk1names))
-  names(vartype) <- xwalk1names
-  if (is.na(match(varname_mrn, xwalk1names))) stop(sprintf("%s not a variable in %s", varname_mrn, tokenfile))
-  if (is.na(match(varname_mrn_token, xwalk1names))) stop(sprintf("%s not a variable in %s", varname_mrn_token, tokenfile))
-  vartype[c(varname_mrn, varname_mrn_token)] <- "character"
-  xwalk1 <- read.csv(tokenfile, colClasses = vartype)
-  nx1 <- nrow(xwalk1)
-  if (verbose > 0) cat(sprintf("%d rows in %s\n", nx1, tokenfile))
+  if (verbose > 0) cat(sprintf("Processing %s\n", filetodeid))
   
-  # check uniqueness of crosswalk
-  xwalk1 <- unique(xwalk1)
-  if (nrow(xwalk1) < nx1) {
-    warning(sprintf("%s has duplicate mrn-tokenized mrn pairs. removing duplicates.", tokenfile))
-    nx1 <- nrow(xwalk1)
-    if (verbose > 0) cat(sprintf("%d rows in %s\n", nx1, tokenfile))
+  varnames <- names(read.csv(filetodeid, header = TRUE, nrows = 0)) # To get variable names
+  
+  if (verbose > 1) {
+    cat(sprintf("%s Variable Names\n", filetodeid))
+    print(varnames)
   }
-  # check 1-1 status
-  if (anyDuplicated(xwalk1[[varname_mrn]])) stop("Crosswalk not 1-1. Duplicate mrns")
-  if (anyDuplicated(xwalk1[[varname_mrn_token]])) stop("Crosswalk not 1-1. Duplicate tokenized mrns")
-
-  # check validity of tokens?
-  # xwalk1 <- xwalk1[nchar(xwalk1$PAT_MRN) == 9 & nchar(xwalk1$PAT_MRN_T) == 44, ]
-
   
-  #########################
-  ## RESUME HERE #
-  ###########################
-  # restore leading zeros?
-  xwalk2 <- read.csv(
-    "J:/EPIC-Ophthalmology/DataMart/2022-11/all/um_oph_pat_shift_num.csv",
-    colClasses = c(PAT_ID = "NULL", PAT_MRN = "character", SHIFT_NUM = "integer", UNIQUE_SOURCE_ID = "NULL"),
-    nrows = Inf)
-  # dim(xwalk2) # 488205
-  # head(xwalk2)
-  # summary(xwalk2$SHIFT_NUM) # 1..9
-  # anyDuplicated(xwalk2$PAT_MRN) # 0
-  # table(nchar(xwalk2$PAT_MRN)) # 4 through 9 (no 0 though)
-  xwalk2$PAT_MRN <- sprintf("%0.9d", as.numeric(xwalk2$PAT_MRN)) # restore leading 0s
-  # table(nchar(xwalk2$PAT_MRN))
+  vartype <- rep("character", length(varnames)) # read all data as character by default
+  names(vartype) <- varnames
   
+  if (any(is.na(match(variablestoremove, varnames))))
+    warning(sprintf("Not all variables in variablestoremove found in %s", filetodeid))
+  if (any(is.na(match(variablestoblank, varnames))))
+    warning(sprintf("Not all variables in variablestoblank found in %s", filetodeid))
+  if (any(is.na(match(datevariablestodateshift, varnames))))
+    warning(sprintf("Not all variables in datevariablestodateshift found in %s", filetodeid))
+  if (any(is.na(match(datetimevariablestodateshift, varnames))))
+    warning(sprintf("Not all variables in datetimevariablestodateshift found in %s", filetodeid))
+  if (is.na(match(fd_varname_mrn, varnames)))
+    stop(sprintf("%s not a variable in %s", fd_varname_mrn, filetodeid))
   
-  # One yearly directory of XML files
-  # root directory:
-  xmlroot <- "J:/FORUM Data"
-  # subdir <- "2005"
-  # subdir <- "2022 November to December"
+  vartype[fd_varname_mrn] <- if (isTRUE(compare_mrn_numeric)) {
+    # "numeric" # errors if column is quoted in input file
+    "character" # change to numeric after reading
+  } else if (isFALSE(compare_mrn_numeric)) {
+    "character"
+  } else stop("compare_mrn_numeric must be TRUE or FALSE")
   
-  for (subdir in c(
-    "1970-1990", "1990-2000", "2000-2004",
-    "2005", "2006", "2007",	"2008", "2009",
-    "2010", "2011", "2012", "2013", "2014",
-    "2015", "2016", "2017", "2018", "2019",
-    "2020", "2021",
-    "2022 Jan to June", "2022 June to Oct", "2022 November to December")) {
-    
-    cat(sprintf("Processing %s\n", subdir))
-    dat <- read.csv(
-      file = sprintf("%s/CSV/%s/UM_OPH_VISUAL_FIELD.csv", xmlroot, subdir),
-      colClasses = c(MRN = "character", MRN0 = "character"),
-      row.names = 1)
-    # names(dat)
-    cat(sprintf("%6d rows read\n", nrow(dat)))
-    
-    # get PAT_MRN from MRN
-    dat1 <- merge(dat, xwalk1, by.x = "MRN", by.y = "PAT_MRN", all.x = TRUE)
-    if (nrow(dat1) != nrow(dat)) stop("Incorrect match process.")
-    cat(sprintf("%6d tokens missing of %6d\n", sum(is.na(dat1$PAT_MRN_T)), nrow(dat1)))
-    
-    # shift test date
-    dat2 <- merge(dat1, xwalk2, by.x = "MRN", by.y = "PAT_MRN", all.x = TRUE)
-    if (nrow(dat2) != nrow(dat1)) stop("Incorrect match process.")
-    cat(sprintf("%6d shifts missing of %6d\n", sum(is.na(dat2$SHIFT_NUM)), nrow(dat2)))
-    # names(dat2)
-    
-    # shift test date (to NA if no SHIFT_NUM)
-    substr(dat2$TestDateTime, 1, 10) <- as.character(as.Date(dat2$TestDateTime) + dat2$SHIFT_NUM)
-    cat(sprintf("%6d DateTimes missing of %6d\n", sum(is.na(dat2$TestDateTime)), nrow(dat2)))
-    
-    dat2[, c("Name", "MRN0", "MRN", "DOB", "Age", "Sex",
-             "Institution", "TestDate", "TestTime",
-             "SHIFT_NUM")] <- NULL
-    names(dat2)[which(names(dat2) == "PAT_MRN_T")] <- "PAT_MRN"
-    dat2$SITE_ID <- "799422"
-    
-    dat2 <- dat2[, c(
-      "SITE_ID", "PAT_MRN", 
-      setdiff(names(dat2), c("SITE_ID", "PAT_MRN")))]
-    names(dat2)
-    
-    if (!dir.exists(sprintf("%s/CSV_Tokenized/%s", xmlroot, subdir))) {
-      if (!dir.create(sprintf("%s/CSV_Tokenized/%s", xmlroot, subdir))) {
-        stop("Unable to create output directory")
-      }
+  # don't read those variables to be removed
+  vartype[intersect(variablestoremove, varnames)] <- "NULL"
+  
+  dat <- read.csv(filetodeid, colClasses = vartype)
+  
+  if (verbose > 0) {
+    cat(sprintf("%d rows read from %s\n", nrow(dat), filetodeid))
+    if (verbose > 1) {
+      print(head(dat))
     }
-    
-    write.csv(
-      dat2, 
-      file = sprintf("%s/CSV_Tokenized/%s/SOURCE_UM_OPH_VISUAL_FIELD.csv", xmlroot, subdir),
-      row.names = TRUE, na = "")
   }
+  
+  # convert character to numeric
+  if (isTRUE(compare_mrn_numeric)) {
+    dat[, fd_varname_mrn] <- as.numeric(dat[, fd_varname_mrn])
+  }
+  
+  # blank those to be blanked
+  dat[intersect(variablestoblank, names(dat))] <- "" 
+  
+  # use crosswalk
+  # replace mrn with tokenized mrn
+  # add date_shift variable.
+  # preserve order of dat
+  codingindex <- match(dat[, fd_varname_mrn], xwalk[, "PAT_MRN"])
+  if (verbose > 1) print(summary(codingindex))
+  
+  if (verbose > 1) print(table(table(dat[, fd_varname_mrn], useNA = "ifany")))
+  dat[, fd_varname_mrn] <- xwalk[codingindex, "PAT_MRN_T"]
+  if (verbose > 1) print(table(table(dat[, fd_varname_mrn], useNA = "ifany")))
+  
+  if (verbose > 0) cat(sprintf("%6d tokenized mrns missing of %6d\n", sum(is.na(dat[, fd_varname_mrn])), nrow(dat)))
+
+  # if there are any variables to date shift, then add SHIFT_NUM and add to dates
+  if ((length(datevariablestodateshift) > 0) || (length(datetimevariablestodateshift) > 0)) {
+    dat[, "SHIFT_NUM_tEmP"] <- xwalk[codingindex, "SHIFT_NUM"]
+    
+    # for each date variable, ADD SHIFT_NUM days
+    for (variabletodateshift in datevariablestodateshift) {
+      if (verbose > 0) cat(sprintf("Shifting %s\n", variabletodateshift))
+      dat[, variabletodateshift] <-
+        format(
+          as.Date(
+            dat[, variabletodateshift],
+            format = dateformat) +
+            dat[, "SHIFT_NUM_tEmP"],
+          format = "%Y-%m-%d") # output in the SOURCE Date Format Standard
+    }
+    # for each datetime variable, ADD 86400 SHIFT_NUM seconds
+    for (variabletodateshift in datetimevariablestodateshift) {
+      if (verbose > 0) cat(sprintf("Shifting %s\n", variabletodateshift))
+      dat[, variabletodateshift] <-
+        format(
+          as.POSIXct(
+            dat[, variabletodateshift],
+            format = datetimeformat,
+            tz = "GMT") + # do computation in GMT so Daylight Saving Time not used
+            86400 * dat[, "SHIFT_NUM_tEmP"], # 24 * 60 * 60 = 86400
+          format = "%Y-%m-%d %H:%M:%S", # output in the SOURCE DateTime Format Standard
+          tz = "GMT", # do computation in GMT so Daylight Saving Time not used
+          usetz = FALSE) # TZ not printed
+    }
+  
+    # remove SHIFT_NUM
+    dat[, "SHIFT_NUM_tEmP"] <- NULL
+  }
+  
+  if (!is.null(outputfile)) {
+    cat(sprintf("Writing to %s\n", outputfile))
+    write.csv(
+      dat,
+      file = outputfile,
+      row.names = FALSE,
+      na = "")
+  }
+  
+  return(invisible(dat))
 }
+
+# ddd <- fileDeID(
+#   filetodeid = "J:/FORUM Data/CSV/2005/UM_OPH_VISUAL_FIELD.csv",
+#   fd_varname_mrn = "MRN",
+#   variablestoremove = c("X", "MRN0", "DOB", "Age", "Sex", "Institution"),
+#   variablestoblank = "Name",
+#   datevariablestodateshift = "TestDate",
+#   dateformat = "%Y%m%d",
+#   datetimevariablestodateshift = "TestDateTime",
+#   xwalk = xwalk,
+#   verbose = 2
+# )
