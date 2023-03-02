@@ -18,17 +18,22 @@
 #' @export
 #'
 #' @examples
-#' # ddd <- fileDeID(
-#' #   filetodeid = "J:/FORUM Data/CSV/2005/UM_OPH_VISUAL_FIELD.csv",
-#' #   fd_varname_mrn = "MRN",
-#' #   variablestoremove = c("X", "MRN0", "DOB", "Age", "Sex", "Institution"),
-#' #   variablestoblank = "Name",
-#' #   datevariablestodateshift = "TestDate",
-#' #   dateformat = "%Y%m%d",
-#' #   datetimevariablestodateshift = "TestDateTime",
-#' #   xwalk = xwalk,
-#' #   verbose = 2
-#' # )
+#' dataloc <- system.file("extdata", package = "DeIDmachinedata")
+#' fn1 <- sprintf("%s/xwalk1.csv", dataloc)
+#' fn2 <- sprintf("%s/xwalk2.csv", dataloc)
+#' xwalk <- loadxwalks(tokenfile = fn1, dateshiftfile = fn2)
+#' fn3 <- sprintf("%s/pentacam_UCH.csv", dataloc)
+#' deidfile <- fileDeID(
+#'   filetodeid = fn3,
+#'   fd_varname_mrn = "Pat-ID:",
+#'   variablestoremove = c("Last Name:", "First Name:", "D.o.Birth:"),
+#'   variablestoblank = "Exam Comment:",
+#'   datevariablestodateshift = "Exam Date:",
+#'   dateformat = "%m/%d/%Y",
+#'   xwalk = xwalk,
+#'   outputfile = NULL,
+#'   verbose = 2)
+#' head(deidfile)
 fileDeID <- function(
     filetodeid,
     fd_varname_mrn = "PAT_MRN",
