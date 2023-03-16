@@ -8,6 +8,7 @@
 #' @param dateformat Format of date variables in the extraction file.  Default is "%Y-%m-%d" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day.
 #' @param datetimevariablestodateshift Names of variables that are datetimes and should be date-shifted. Default is character(0), no variables to shift.
 #' @param datetimeformat Format of date variables in the extraction file.  Default is "%Y-%m-%d %H:%M:%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.
+#' @param separator Field separator in filetodeid. Default is ",".
 #' @param xwalk data.frame containing cross walk information. Usually the output from loadxwalks().
 #' @param compare_mrn_numeric Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is TRUE by default.
 #' @param outputfile Name of file to write de-identified data. If NULL (the default) the data are not written, only returned from the function.
@@ -43,6 +44,7 @@ fileDeID <- function(
     dateformat = "%Y-%m-%d",
     datetimevariablestodateshift = character(0),
     datetimeformat = "%Y-%m-%d %H:%M:%OS",
+    separator = ",",
 
     xwalk,
 
@@ -69,15 +71,17 @@ fileDeID <- function(
   varnames <- if (isTRUE(usefread)) {
     names(data.table::fread(
       file = filetodeid,
+      header = TRUE,
+      sep = separator,
       check.names = FALSE, # default, actually
       data.table = FALSE,
-      header = TRUE,
       nrows = 0))
   } else if (isFALSE(usefread)) {
-    names(utils::read.csv(
+    names(utils::read.table(
       filetodeid,
-      check.names = FALSE, # allow non-standard names
       header = TRUE,
+      sep = separator,
+      check.names = FALSE, # allow non-standard names
       nrows = 0)) # To get variable names
   } else stop("usefread must be TRUE or FALSE.")
 
@@ -113,12 +117,16 @@ fileDeID <- function(
   dat <- if (isTRUE(usefread)) {
     data.table::fread(
       file = filetodeid,
+      header = TRUE,
+      sep = separator,
       check.names = FALSE, # allow non-standard names
       data.table = FALSE,
       colClasses = vartype)
   } else {
-    utils::read.csv(
+    utils::read.table(
       filetodeid,
+      header = TRUE,
+      sep = separator,
       check.names = FALSE, # allow non-standard names
       colClasses = vartype)
   }

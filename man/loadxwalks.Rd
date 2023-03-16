@@ -8,9 +8,11 @@ loadxwalks(
   tokenfile = NULL,
   t_varname_mrn = "PAT_MRN",
   t_varname_mrn_token = "PAT_MRN_T",
+  t_separator = ",",
   dateshiftfile = NULL,
   ds_varname_mrn = "PAT_MRN",
   ds_varname_dateshift = "SHIFT_NUM",
+  ds_separator = ",",
   compare_mrn_numeric = TRUE,
   verbose = 0
 )
@@ -22,11 +24,15 @@ loadxwalks(
 
 \item{t_varname_mrn_token}{Name of the tokenized mrn variable in the token file.  Default is "PAT_MRN_T".}
 
+\item{t_separator}{Field separator in tokenfile. Default is ",".}
+
 \item{dateshiftfile}{Name of the mrn-date shift file.}
 
 \item{ds_varname_mrn}{Name of the mrn variable in the date shift file.  Default is "PAT_MRN".}
 
 \item{ds_varname_dateshift}{Name of the date shift variable. Default is "SHIFT_NUM"}
+
+\item{ds_separator}{Field separator in dateshiftfile. Default is ",".}
 
 \item{compare_mrn_numeric}{Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is TRUE.}
 

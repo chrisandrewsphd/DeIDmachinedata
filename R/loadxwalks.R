@@ -3,9 +3,11 @@
 #' @param tokenfile Name of the mrn-tokenized mrn crosswalk file.
 #' @param t_varname_mrn Name of the mrn variable in the token file.  Default is "PAT_MRN".
 #' @param t_varname_mrn_token Name of the tokenized mrn variable in the token file.  Default is "PAT_MRN_T".
+#' @param t_separator Field separator in tokenfile. Default is ",".
 #' @param dateshiftfile  Name of the mrn-date shift file.
 #' @param ds_varname_mrn Name of the mrn variable in the date shift file.  Default is "PAT_MRN".
 #' @param ds_varname_dateshift Name of the date shift variable. Default is "SHIFT_NUM"
+#' @param ds_separator Field separator in dateshiftfile. Default is ",".
 #' @param compare_mrn_numeric Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is TRUE.
 #' @param verbose Higher values produce more output to console.  Default is 0, no output.
 #'
@@ -31,10 +33,12 @@ loadxwalks <- function(
     tokenfile = NULL,
     t_varname_mrn = "PAT_MRN", # character(0),
     t_varname_mrn_token = "PAT_MRN_T", # character(0),
+    t_separator = ",",
 
     dateshiftfile = NULL,
     ds_varname_mrn = "PAT_MRN",
     ds_varname_dateshift = "SHIFT_NUM",
+    ds_separator = ",",
 
     compare_mrn_numeric = TRUE, # if mrns are all digits, this can avoid problems with leading 0s.
 
@@ -44,7 +48,7 @@ loadxwalks <- function(
   if (is.null(tokenfile) && is.null(dateshiftfile)) stop("Must provide tokenfile and/or dateshiftfile")
 
   if (!is.null(dateshiftfile)) {
-    xwalk2names <- names(utils::read.csv(dateshiftfile, header = TRUE, nrow = 0))
+    xwalk2names <- names(utils::read.table(dateshiftfile, header = TRUE, sep = ds_separator, nrow = 0))
 
     if (verbose > 1) {
       cat("Date Shift Crosswalk Variable Names\n")
@@ -72,7 +76,7 @@ loadxwalks <- function(
       "character"
     } else stop("compare_mrn_numeric must be TRUE or FALSE.")
 
-    xwalk2 <- utils::read.csv(dateshiftfile, colClasses = vartype)
+    xwalk2 <- utils::read.table(dateshiftfile, header = TRUE, sep = ds_separator, colClasses = vartype)
 
     if (verbose > 0) {
       cat(sprintf("%d rows read from %s\n", nrow(xwalk2), dateshiftfile))
@@ -106,7 +110,7 @@ loadxwalks <- function(
   }
 
   if (!is.null(tokenfile)) {
-    xwalk1names <- names(utils::read.csv(tokenfile, header = TRUE, nrows = 0)) # To get variable names
+    xwalk1names <- names(utils::read.table(tokenfile, header = TRUE, sep = t_separator, nrows = 0)) # To get variable names
 
     if (verbose > 1) {
       cat("Token Crosswalk Variable Names\n")
@@ -129,7 +133,7 @@ loadxwalks <- function(
       "character"
     } else stop("compare_mrn_numeric must be TRUE or FALSE.")
 
-    xwalk1 <- utils::read.csv(tokenfile, colClasses = vartype)
+    xwalk1 <- utils::read.table(tokenfile, header = TRUE, sep = t_separator, colClasses = vartype)
 
     if (verbose > 0) {
       cat(sprintf("%d rows read from %s\n", nrow(xwalk1), tokenfile))
