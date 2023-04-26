@@ -9,6 +9,7 @@
 #' @param datetimevariablestodateshift Names of variables that are datetimes and should be date-shifted. Default is character(0), no variables to shift.
 #' @param datetimeformat Format of date variables in the extraction file.  Default is "%Y-%m-%d %H:%M:%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.
 #' @param separator Field separator in filetodeid. Default is ",".
+#' @param separator_out Field separator to use in outputfile. Default is ",".
 #' @param xwalk data.frame containing cross walk information. Usually the output from loadxwalks().
 #' @param compare_mrn_numeric Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is TRUE by default.
 #' @param outputfile Name of file to write de-identified data. If NULL (the default) the data are not written, only returned from the function.
@@ -45,6 +46,7 @@ fileDeID <- function(
     datetimevariablestodateshift = character(0),
     datetimeformat = "%Y-%m-%d %H:%M:%OS",
     separator = ",",
+    separator_out = ",",
 
     xwalk,
 
@@ -153,21 +155,33 @@ fileDeID <- function(
   # add date_shift variable.
   # preserve order of dat
   codingindex <- match(dat[, fd_varname_mrn], xwalk[, "PAT_MRN"])
-  if (verbose > 1) print(summary(codingindex))
+  if (verbose > 1) {
+    cat("summary of MRN matching index\n")
+    print(summary(codingindex))
+  }
 
-  if (verbose > 1) print(table(table(dat[, fd_varname_mrn], useNA = "ifany")))
+  if (verbose > 1) {
+    cat("Number of patients with each number of test (original MRN)\n")
+    print(table(table(dat[, fd_varname_mrn], useNA = "ifany")))
+  }
+
+  # replace PAT_MRN by PAT_MRN_T
   dat[, fd_varname_mrn] <- xwalk[codingindex, "PAT_MRN_T"]
-  if (verbose > 1) print(table(table(dat[, fd_varname_mrn], useNA = "ifany")))
+  if (verbose > 1) {
+    cat("Number of patients with each number of test (tokenized MRN)\n")
+    print(table(table(dat[, fd_varname_mrn], useNA = "ifany")))
+  }
 
   if (verbose > 0) cat(sprintf("%6d tokenized mrns missing of %6d\n", sum(is.na(dat[, fd_varname_mrn])), nrow(dat)))
 
   # if there are any variables to date shift, then add SHIFT_NUM and add to dates
   if ((length(datevariablestodateshift) > 0) || (length(datetimevariablestodateshift) > 0)) {
-    dat[, "SHIFT_NUM_tEmP"] <- xwalk[codingindex, "SHIFT_NUM"]
+    dat[, "SHIFT_NUM_tEmP"] <- xwalk[codingindex, "SHIFT_NUM"] # add SHIFT_NUM variable
 
     # for each date variable, ADD SHIFT_NUM days
     for (variabletodateshift in datevariablestodateshift) {
       if (verbose > 0) cat(sprintf("Shifting %s\n", variabletodateshift))
+      if (verbose > 1) print(utils::head(dat[, variabletodateshift]))
       dat[, variabletodateshift] <-
         format(
           as.Date(
@@ -175,10 +189,12 @@ fileDeID <- function(
             format = dateformat) +
             dat[, "SHIFT_NUM_tEmP"],
           format = "%Y-%m-%d") # output in the SOURCE Date Format Standard
+      if (verbose > 1) print(utils::head(dat[, variabletodateshift]))
     }
     # for each datetime variable, ADD 86400 SHIFT_NUM seconds
     for (variabletodateshift in datetimevariablestodateshift) {
       if (verbose > 0) cat(sprintf("Shifting %s\n", variabletodateshift))
+      if (verbose > 1) print(utils::head(dat[, variabletodateshift]))
       dat[, variabletodateshift] <-
         format(
           as.POSIXct(
@@ -189,9 +205,10 @@ fileDeID <- function(
           format = "%Y-%m-%d %H:%M:%S", # output in the SOURCE DateTime Format Standard
           tz = "GMT", # do computation in GMT so Daylight Saving Time not used
           usetz = FALSE) # TZ not printed
+      if (verbose > 1) print(utils::head(dat[, variabletodateshift]))
     }
 
-    # remove SHIFT_NUM
+    # remove SHIFT_NUM from dataset
     dat[, "SHIFT_NUM_tEmP"] <- NULL
   }
 
@@ -201,12 +218,15 @@ fileDeID <- function(
       data.table::fwrite(
         dat,
         file = outputfile,
+        sep = separator_out,
         row.names = FALSE, # default, actually
         na = "") # default, actually
     } else {
-      utils::write.csv(
+      utils::write.table(
         dat,
         file = outputfile,
+        sep = separator_out,
+        qmethod = "double",
         row.names = FALSE,
         na = "")
     }

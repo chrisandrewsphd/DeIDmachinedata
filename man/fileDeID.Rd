@@ -14,6 +14,7 @@ fileDeID(
   datetimevariablestodateshift = character(0),
   datetimeformat = "\%Y-\%m-\%d \%H:\%M:\%OS",
   separator = ",",
+  separator_out = ",",
   xwalk,
   compare_mrn_numeric = attr(xwalk, "compare_mrn_numeric"),
   outputfile = NULL,
@@ -39,6 +40,8 @@ fileDeID(
 \item{datetimeformat}{Format of date variables in the extraction file.  Default is "\%Y-\%m-\%d \%H:\%M:\%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.}
 
 \item{separator}{Field separator in filetodeid. Default is ",".}
+
+\item{separator_out}{Field separator to use in outputfile. Default is ",".}
 
 \item{xwalk}{data.frame containing cross walk information. Usually the output from loadxwalks().}
 
