@@ -74,6 +74,7 @@ fileDeID <- function(
     names(data.table::fread(
       file = filetodeid,
       header = TRUE,
+      na.strings = "",
       sep = separator,
       check.names = FALSE, # default, actually
       data.table = FALSE,
@@ -82,6 +83,7 @@ fileDeID <- function(
     names(utils::read.table(
       filetodeid,
       header = TRUE,
+      na.strings = "",
       sep = separator,
       check.names = FALSE, # allow non-standard names
       nrows = 0)) # To get variable names
@@ -120,6 +122,7 @@ fileDeID <- function(
     data.table::fread(
       file = filetodeid,
       header = TRUE,
+      na.strings = "",
       sep = separator,
       check.names = FALSE, # allow non-standard names
       data.table = FALSE,
@@ -128,6 +131,7 @@ fileDeID <- function(
     utils::read.table(
       filetodeid,
       header = TRUE,
+      na.strings = "",
       sep = separator,
       check.names = FALSE, # allow non-standard names
       colClasses = vartype)
