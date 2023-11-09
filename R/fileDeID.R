@@ -12,7 +12,7 @@
 #' @param separator_out Field separator to use in outputfile. Default is ",".
 #' @param xwalk data.frame containing cross walk information. Usually the output from loadxwalks().
 #' @param compare_mrn_numeric Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is TRUE by default.
-#' @param outputfile Name of file to write de-identified data. If NULL (the default) the data are not written, only returned from the function.
+#' @param outputfile Name of file to write de-identified data. If NULL (the default) the data are not written, but only returned from the function. An additional option is the special value "SOURCE_", which causes the output to be written to the same filename as the input but prepended with "SOURCE_".
 #' @param usefread If TRUE (default), use data.table::fread and data.table::fwrite. If FALSE, use utils::read.csv and utils::write.csv. TRUE is preferable as the latter adds double quotes around almost all values when producing output file.
 #' @param verbose Higher values produce more output to console.  Default is 0, no output.
 #'
@@ -217,6 +217,12 @@ fileDeID <- function(
   }
 
   if (!is.null(outputfile)) {
+    if (isTRUE(outputfile == "SOURCE_")) {
+      # special case: add SOURCE_ to input filename to create output filename
+      sss <- strsplit(filetodeid, split = "/", fixed = TRUE)[[1]]
+      sss[length(sss)] <- sprintf("SOURCE_%s", sss[length(sss)])
+      outputfile <- paste(sss, collapse = "/")
+    }
     cat(sprintf("Writing to %s\n", outputfile))
     if (isTRUE(usefread)) {
       data.table::fwrite(

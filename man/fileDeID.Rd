@@ -47,7 +47,7 @@ fileDeID(
 
 \item{compare_mrn_numeric}{Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is TRUE by default.}
 
-\item{outputfile}{Name of file to write de-identified data. If NULL (the default) the data are not written, only returned from the function.}
+\item{outputfile}{Name of file to write de-identified data. If NULL (the default) the data are not written, but only returned from the function. An additional option is the special value "SOURCE_", which causes the output to be written to the same filename as the input but prepended with "SOURCE_".}
 
 \item{usefread}{If TRUE (default), use data.table::fread and data.table::fwrite. If FALSE, use utils::read.csv and utils::write.csv. TRUE is preferable as the latter adds double quotes around almost all values when producing output file.}
 
