@@ -33,9 +33,9 @@ and [fileDeID()] are flexible enough to
 use with data extracted from many devices.  The examples is this
 vignette are for
 
+* Pentacam
 * Visual Field tests extracted with FORUM
 * OCT scans from both CIRRUS and Spectrallis devices
-* Pentacam
 
 The deidentification process involves
 
@@ -51,6 +51,18 @@ Get two files from your IT. These files are the crosswalk between the
 MRN and Tokenized MRN and the date-shift repository.  These files
 are created as part of the extraction from EPIC using code shared by
 the SOURCE Data Architect Team.
+
+Inspect the files you want to deidentify. You'll need to determine
+
+a. the names of the variables that contain PII. The functions described
+here pass-through any columns not mentioned in the arguments from
+the input file to the output file.
+b. the format of any date or datetime variables to be shifted.
+
+And,
+of course, inspect the output files to confirm that you have
+properly used the functions so that PII is no longer present.
+
 
 # loadxwalks()
 
@@ -68,10 +80,134 @@ xwalk <- loadxwalks(
   dateshiftfile = "mrndateshift.csv")
 ```
 
+You'll need to specify the proper filenames.  Supply the complete
+path if they are not in the working directory.
 
 # fileDeID()
 
+[fileDeID()] uses the crosswalk created by 
+[loadxwalks()] to perform the 3 items listed above on a specified file.
+Specifically, the patient ID is replace by a tokenized version, dates
+and datetimes are shifted, and other specified columns are removed.
 
 
+## Pentacam
+
+In our experience with Pentacam,
+
+1. the variable containing the patient's MRN is "PAT-ID:";
+2. the variable to be dateshifted is "Exam Date:"
+(with format YYYYMMDD:
+4-digit year, 2-digit month, and 2-digit day with no separators); and
+3. the variables to be removed are "Last Name:", "First Name:", "D.o.Birth:",
+and "Exam Comment:".
+
+Thus, the standard call is
+
+```{r eval = FALSE}
+fileDeID(
+  filetodeid = "pentacam.csv",
+  fd_varname_mrn = "PAT-ID:",
+  variablestoremove =
+    c("Last Name:", "First Name:", "D.o.Birth:", "Exam Comment:"),
+  datevariablestodateshift = "Exam Date:",
+  dateformat = "%Y%m%d",
+  xwalk = xwalk,
+  outputfile = "SOURCE_")
+```
+
+It reads the file "pentacam.csv" and writes the file "SOURCE_pentacam.csv"
+
+A second Pentacam example where the values are separated by semicolons
+and the datetime format is ISO 8601 (https://en.wikipedia.org/wiki/ISO_8601)
+
+```{r eval = FALSE}
+fileDeID(
+  filetodeid = "./Data/Example.csv",
+  fd_varname_mrn = "Patient ID",
+  variablestoremove =
+    c("First name", "Last name", "National ID", "OD Comment", "OS Comment"),
+  datetimevariablestodateshift = "Date / Time",
+  datetimeformat = "%Y-%m-%dT%H:%M:%OS",
+  separator = ";",
+  xwalk = xwalk,
+  outputfile = "./Data/Example_out.csv")
+```
 
 
+## Visual Field (via FORUM)
+
+The extraction process for visual fields often produces several flat files
+corresponding to the several test formats (24-2, 10-2, etc.). These can
+each be deidentified separately.  Other than the input and output filenames,
+the calls to fileDeID() are identical.
+
+1. the variable containing the patient's MRN is usually "MRN" (but sometimes "MRN0");
+2. the variable to be dateshifted is "TestDate"
+(with format YYYYMMDD:
+4-digit year, 2-digit month, and 2-digit day with no separators)
+or "TestDateTime" 
+(with format YYYY-MM-DD HH:MM:SS:
+4-digit year, hypen, 2-digit month, hypen, 2-digit day, space,
+2-digit hour (00-23), colon, 2-digit minute, colon, 2-digit second)
+or both; and
+3. the variables to be removed are
+"TestID", "Name", "MRN0" (or "MRN"), "DOB", "Age", "Sex", and "Institution".
+
+Thus, the typical call is
+
+```{r eval = FALSE}
+fileDeID(
+	filetodeid = "OPH_HVF.csv",
+	fd_varname_mrn = "MRN",
+	variablestoremove =
+	  c("TestID", "Name", "MRN0", "DOB", "Age", "Sex", "Institution"),
+	datevariablestodateshift = "TestDate",
+	dateformat = "%Y%m%d",
+	datetimevariablestodateshift = "TestDateTime",
+	datetimeformat = "%Y-%m-%d %H:%M:%OS",
+	xwalk = xwalk,
+	outputfile = "SOURCE_")
+```
+
+
+## CIRRUS OCT
+
+Our experience with CIRRUS OCT is limited to one instance.  In that case,
+
+1. the variable containing the patient's MRN is "PatientID";
+2. the variable to be dateshifted is "StudyIDNUM"
+(with format YYYYMMDD:
+4-digit year, 2-digit month, and 2-digit day with no separators); and
+3. the variables to be removed are filename paths: "DicomFilePath_ODCube",
+"DicomFilePath_GlaucOUAnalysis", and "DicomFilePath_CorrespondingPDF".
+
+Thus, the function call is
+
+```{r eval = FALSE}
+fileDeID(
+  filetodeid = "cirrus_oct_rnfl.csv",
+  fd_varname_mrn = "PatientID",
+  variablestoremove = c(
+    "DicomFilePath_ODCube",
+    "DicomFilePath_GlaucOUAnalysis",
+    "DicomFilePath_CorrespondingPDF"),
+  datevariablestodateshift = "StudyIDNUM",
+  dateformat = "%Y%m%d",
+  xwalk = xwalk,
+  outputfile = "SOURCE_OCT_RNFL.csv")
+```
+
+
+## OCT Spectralis
+
+1. the variable containing the patient's MRN is "Patient.ID"; and
+2. the variable to be dateshifted is "OCT.Scan.Date".
+
+# Details
+
+## Date Formats
+
+If dates or datetimes are not stored in the common formats given in the 
+examples here, use `?strptime` to create the proper format for your 
+data.
