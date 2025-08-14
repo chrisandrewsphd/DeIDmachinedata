@@ -1,0 +1,77 @@
+---
+title: "Deidentifying a Flat File"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Deidentifying a Flat File}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(DeIDmachinedata)
+```
+
+# Introduction
+
+Ophthalmology uses many devices to monitor and record a patient's
+visual function. After extracting historical information from a
+device, the data must be de-identified before submitting to SOURCE,
+the Sight OUtcomes Research CollaborativE
+(https://www.sourcecollaborative.org/).
+
+The two functions in the package _DeIDmachinedata_ can be used,
+along with crosswalks provided by IT, to complete the data preparation.
+The functions [loadxwalks()]
+and [fileDeID()] are flexible enough to 
+use with data extracted from many devices.  The examples is this
+vignette are for
+
+* Visual Field tests extracted with FORUM
+* OCT scans from both CIRRUS and Spectrallis devices
+* Pentacam
+
+The deidentification process involves
+
+1. replacing the patient's actual MRN
+with a Tokenized MRN from Datavant's linkage environment;
+2. shifting actual test dates by a patient-specific, SOURCE-determined
+number of days; and
+3. removing or blanking remaining PII information.
+
+# Before you start
+
+Get two files from your IT. These files are the crosswalk between the 
+MRN and Tokenized MRN and the date-shift repository.  These files
+are created as part of the extraction from EPIC using code shared by
+the SOURCE Data Architect Team.
+
+# loadxwalks()
+
+[loadxwalks()] reads the two files and creates a data.frame in R.
+The input files can be in various formats, but the resulting 
+data.frame has the structure expected by [fileDeID()].
+This function call is used regardless of the machine data to be
+deidentified.
+
+A typical call is
+
+```{r eval = FALSE}
+xwalk <- loadxwalks(
+  tokenfile = "mrncrosswalk.csv",
+  dateshiftfile = "mrndateshift.csv")
+```
+
+
+# fileDeID()
+
+
+
+
+
