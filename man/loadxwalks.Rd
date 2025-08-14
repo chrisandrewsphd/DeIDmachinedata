@@ -2,7 +2,7 @@
 % Please edit documentation in R/loadxwalks.R
 \name{loadxwalks}
 \alias{loadxwalks}
-\title{Load crosswalk(s) needed to de-identify machine data. One crosswalk between mrns and tokenized mrns. Optionally, a second file with mrns and date shift variable}
+\title{Load crosswalk(s) needed to de-identify machine data.}
 \usage{
 loadxwalks(
   tokenfile = NULL,
@@ -14,35 +14,37 @@ loadxwalks(
   ds_varname_dateshift = "SHIFT_NUM",
   ds_separator = ",",
   compare_mrn_numeric = TRUE,
-  verbose = 0
+  verbose = 0L
 )
 }
 \arguments{
-\item{tokenfile}{Name of the mrn-tokenized mrn crosswalk file.}
+\item{tokenfile}{character. Name of the mrn-tokenized mrn crosswalk file.}
 
-\item{t_varname_mrn}{Name of the mrn variable in the token file.  Default is "PAT_MRN".}
+\item{t_varname_mrn}{character. Name of the mrn variable in the token file.  Default is "PAT_MRN".}
 
-\item{t_varname_mrn_token}{Name of the tokenized mrn variable in the token file.  Default is "PAT_MRN_T".}
+\item{t_varname_mrn_token}{character. Name of the tokenized mrn variable in the token file.  Default is "PAT_MRN_T".}
 
-\item{t_separator}{Field separator in tokenfile. Default is ",".}
+\item{t_separator}{character. Field separator in tokenfile. Default is ",".}
 
-\item{dateshiftfile}{Name of the mrn-date shift file.}
+\item{dateshiftfile}{character. Name of the mrn-date shift file.}
 
-\item{ds_varname_mrn}{Name of the mrn variable in the date shift file.  Default is "PAT_MRN".}
+\item{ds_varname_mrn}{character. Name of the mrn variable in the date shift file.  Default is "PAT_MRN".}
 
-\item{ds_varname_dateshift}{Name of the date shift variable. Default is "SHIFT_NUM"}
+\item{ds_varname_dateshift}{character. Name of the date shift variable. Default is "SHIFT_NUM"}
 
-\item{ds_separator}{Field separator in dateshiftfile. Default is ",".}
+\item{ds_separator}{character. Field separator in dateshiftfile. Default is ",".}
 
-\item{compare_mrn_numeric}{Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is TRUE.}
+\item{compare_mrn_numeric}{logical. Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is \code{TRUE}.}
 
-\item{verbose}{Higher values produce more output to console.  Default is 0, no output.}
+\item{verbose}{integer. Higher values produce more output to console.  Default is 0, no output.}
 }
 \value{
-A data.frame with columns PAT_MRN, PAT_MRN_T, and SHIFT_NUM if dateshiftfile is not NULL.
+A data.frame with columns PAT_MRN and PAT_MRN_T and, if dateshiftfile is not NULL, SHIFT_NUM.
 }
 \description{
-Load crosswalk(s) needed to de-identify machine data. One crosswalk between mrns and tokenized mrns. Optionally, a second file with mrns and date shift variable
+One crosswalk between mrns and tokenized mrns.
+Optionally (if any date-shifting is to be done),
+a second file with mrns and date shift variable
 }
 \examples{
 dataloc <- system.file("extdata", package = "DeIDmachinedata")

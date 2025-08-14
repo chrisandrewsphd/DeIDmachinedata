@@ -1,17 +1,21 @@
-#' Load crosswalk(s) needed to de-identify machine data. One crosswalk between mrns and tokenized mrns. Optionally, a second file with mrns and date shift variable
+#' Load crosswalk(s) needed to de-identify machine data.
 #'
-#' @param tokenfile Name of the mrn-tokenized mrn crosswalk file.
-#' @param t_varname_mrn Name of the mrn variable in the token file.  Default is "PAT_MRN".
-#' @param t_varname_mrn_token Name of the tokenized mrn variable in the token file.  Default is "PAT_MRN_T".
-#' @param t_separator Field separator in tokenfile. Default is ",".
-#' @param dateshiftfile  Name of the mrn-date shift file.
-#' @param ds_varname_mrn Name of the mrn variable in the date shift file.  Default is "PAT_MRN".
-#' @param ds_varname_dateshift Name of the date shift variable. Default is "SHIFT_NUM"
-#' @param ds_separator Field separator in dateshiftfile. Default is ",".
-#' @param compare_mrn_numeric Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is TRUE.
-#' @param verbose Higher values produce more output to console.  Default is 0, no output.
+#' One crosswalk between mrns and tokenized mrns.
+#' Optionally (if any date-shifting is to be done),
+#' a second file with mrns and date shift variable
 #'
-#' @return A data.frame with columns PAT_MRN, PAT_MRN_T, and SHIFT_NUM if dateshiftfile is not NULL.
+#' @param tokenfile character. Name of the mrn-tokenized mrn crosswalk file.
+#' @param t_varname_mrn character. Name of the mrn variable in the token file.  Default is "PAT_MRN".
+#' @param t_varname_mrn_token character. Name of the tokenized mrn variable in the token file.  Default is "PAT_MRN_T".
+#' @param t_separator character. Field separator in tokenfile. Default is ",".
+#' @param dateshiftfile  character. Name of the mrn-date shift file.
+#' @param ds_varname_mrn character. Name of the mrn variable in the date shift file.  Default is "PAT_MRN".
+#' @param ds_varname_dateshift character. Name of the date shift variable. Default is "SHIFT_NUM"
+#' @param ds_separator character. Field separator in dateshiftfile. Default is ",".
+#' @param compare_mrn_numeric logical. Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is \code{TRUE}.
+#' @param verbose integer. Higher values produce more output to console.  Default is 0, no output.
+#'
+#' @return A data.frame with columns PAT_MRN and PAT_MRN_T and, if dateshiftfile is not NULL, SHIFT_NUM.
 #' @export
 #'
 #' @examples
@@ -42,15 +46,17 @@ loadxwalks <- function(
 
     compare_mrn_numeric = TRUE, # if mrns are all digits, this can avoid problems with leading 0s.
 
-    verbose = 0) {
+    verbose = 0L) {
 
   # Read and possibly merge crosswalks
-  if (is.null(tokenfile) && is.null(dateshiftfile)) stop("Must provide tokenfile and/or dateshiftfile")
+  if (is.null(tokenfile) && is.null(dateshiftfile))
+    stop("Must provide tokenfile and/or dateshiftfile")
 
   if (!is.null(dateshiftfile)) {
-    xwalk2names <- names(utils::read.table(dateshiftfile, header = TRUE, sep = ds_separator, nrow = 0))
+    xwalk2names <- names(utils::read.table(
+      dateshiftfile, header = TRUE, sep = ds_separator, nrow = 0L))
 
-    if (verbose > 1) {
+    if (verbose > 1L) {
       cat("Date Shift Crosswalk Variable Names\n")
       print(xwalk2names)
     }
@@ -76,11 +82,12 @@ loadxwalks <- function(
       "character"
     } else stop("compare_mrn_numeric must be TRUE or FALSE.")
 
-    xwalk2 <- utils::read.table(dateshiftfile, header = TRUE, sep = ds_separator, colClasses = vartype)
+    xwalk2 <- utils::read.table(
+      dateshiftfile, header = TRUE, sep = ds_separator, colClasses = vartype)
 
-    if (verbose > 0) {
+    if (verbose > 0L) {
       cat(sprintf("%d rows read from %s\n", nrow(xwalk2), dateshiftfile))
-      if (verbose > 1) {
+      if (verbose > 1L) {
         print(utils::head(xwalk2))
       }
     }
@@ -96,13 +103,18 @@ loadxwalks <- function(
       n0 <- nrow(xwalk2)
       xwalk2 <- unique(xwalk2)
       n2 <- nrow(xwalk2)
-      if (verbose > 0) cat(sprintf("%s has duplicate mrn-date shift pairs. removing %d duplicates.\n", dateshiftfile, n0 - n2))
+      if (verbose > 0L)
+        cat(sprintf(
+          "%s has duplicate mrn-date shift pairs. removing %d duplicates.\n",
+          dateshiftfile, n0 - n2))
     }
 
     # check for more than 1 date shift for a single mrn
-    if (anyDuplicated(xwalk2[[ds_varname_mrn]])) stop("Crosswalk not 1-1. One MRN has multiple date shifts.")
+    if (anyDuplicated(xwalk2[[ds_varname_mrn]]))
+      stop("Crosswalk not 1-1. One MRN has multiple date shifts.")
 
-    if (verbose > 0) cat(sprintf("%d unique rows in %s\n", nrow(xwalk2), dateshiftfile))
+    if (verbose > 0L)
+      cat(sprintf("%d unique rows in %s\n", nrow(xwalk2), dateshiftfile))
 
     # Standardize variable names
     names(xwalk2)[match(c(ds_varname_mrn, ds_varname_dateshift), names(xwalk2))] <-
@@ -110,9 +122,11 @@ loadxwalks <- function(
   }
 
   if (!is.null(tokenfile)) {
-    xwalk1names <- names(utils::read.table(tokenfile, header = TRUE, sep = t_separator, nrows = 0)) # To get variable names
+    # To get variable names
+    xwalk1names <- names(utils::read.table(
+      tokenfile, header = TRUE, sep = t_separator, nrows = 0L))
 
-    if (verbose > 1) {
+    if (verbose > 1L) {
       cat("Token Crosswalk Variable Names\n")
       print(xwalk1names)
     }
@@ -133,11 +147,12 @@ loadxwalks <- function(
       "character"
     } else stop("compare_mrn_numeric must be TRUE or FALSE.")
 
-    xwalk1 <- utils::read.table(tokenfile, header = TRUE, sep = t_separator, colClasses = vartype)
+    xwalk1 <- utils::read.table(
+      tokenfile, header = TRUE, sep = t_separator, colClasses = vartype)
 
-    if (verbose > 0) {
+    if (verbose > 0L) {
       cat(sprintf("%d rows read from %s\n", nrow(xwalk1), tokenfile))
-      if (verbose > 1) {
+      if (verbose > 1L) {
         print(utils::head(xwalk1))
       }
     }
@@ -152,13 +167,18 @@ loadxwalks <- function(
       n0 <- nrow(xwalk1)
       xwalk1 <- unique(xwalk1)
       n1 <- nrow(xwalk1)
-      if (verbose > 0) cat(sprintf("%s has duplicate mrn-mrn_token pairs. Removed %d duplicates.\n", tokenfile, n0 - n1))
+      if (verbose > 0L)
+        cat(sprintf(
+          "%s has duplicate mrn-mrn_token pairs. Removed %d duplicates.\n",
+          tokenfile, n0 - n1))
     }
 
     # check for more than 1 token mrn for a single mrn
-    if (anyDuplicated(xwalk1[, t_varname_mrn])) stop("Crosswalk not 1-1. One MRN has multiple tokenized MRNs.")
+    if (anyDuplicated(xwalk1[, t_varname_mrn]))
+      stop("Crosswalk not 1-1. One MRN has multiple tokenized MRNs.")
     # check for more than 1 mrn for a single token mrn
-    if (anyDuplicated(xwalk1[, t_varname_mrn_token])) stop("Crosswalk not 1-1. One Tokenized MRN has multiple MRNs.")
+    if (anyDuplicated(xwalk1[, t_varname_mrn_token]))
+      stop("Crosswalk not 1-1. One Tokenized MRN has multiple MRNs.")
 
     if (verbose > 0) cat(sprintf("%d unique rows in %s\n", nrow(xwalk1), tokenfile))
 

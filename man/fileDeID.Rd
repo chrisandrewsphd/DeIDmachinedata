@@ -19,45 +19,50 @@ fileDeID(
   compare_mrn_numeric = attr(xwalk, "compare_mrn_numeric"),
   outputfile = NULL,
   usefread = TRUE,
-  verbose = 0
+  verbose = 0L
 )
 }
 \arguments{
-\item{filetodeid}{A single csv file to de-identify.}
+\item{filetodeid}{character. Filename of a single flat file to de-identify.}
 
-\item{fd_varname_mrn}{Name of mrn variable in file to de-identify. Default is PAT_MRN.}
+\item{fd_varname_mrn}{character. Name of MRN variable in file to de-identify. Default is "PAT_MRN".}
 
-\item{variablestoremove}{Names of variables in extraction file to remove. Default is character(0), no variables to remove.}
+\item{variablestoremove}{character vector. Names of variables in extraction file to remove. Default is \code{character(0)}, no variables to remove.}
 
-\item{variablestoblank}{Names of variables in extraction file to blank. The variable will remain in the output file but will be "" for all rows. Default is character(0), no variables to blank.}
+\item{variablestoblank}{character vector. Names of variables in extraction file to blank. The variable will remain in the output file but will be '' for all rows. Default is \code{character(0)}, no variables to blank.}
 
-\item{datevariablestodateshift}{Names of variables that are dates and should be date-shifted. Default is character(0), no variables to shift.}
+\item{datevariablestodateshift}{character vector. Names of variables that are dates and should be date-shifted. Default is \code{character(0)}, no variables to shift.}
 
-\item{dateformat}{Format of date variables in the extraction file.  Default is "\%Y-\%m-\%d" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day.}
+\item{dateformat}{character. Format of date variables in the extraction file.  Default is "\%Y-\%m-\%d" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day.}
 
-\item{datetimevariablestodateshift}{Names of variables that are datetimes and should be date-shifted. Default is character(0), no variables to shift.}
+\item{datetimevariablestodateshift}{character vector. Names of variables that are datetimes and should be date-shifted. Default is \code{character(0)}, no variables to shift.}
 
-\item{datetimeformat}{Format of date variables in the extraction file.  Default is "\%Y-\%m-\%d \%H:\%M:\%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.}
+\item{datetimeformat}{character. Format of datetime variables in the extraction file.  Default is "\%Y-\%m-\%d \%H:\%M:\%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.}
 
-\item{separator}{Field separator in filetodeid. Default is ",".}
+\item{separator}{character. Field separator in filetodeid (input file). Default is \code{","}.}
 
-\item{separator_out}{Field separator to use in outputfile. Default is ",".}
+\item{separator_out}{character. Field separator to use in outputfile. Default is \code{","}.}
 
-\item{xwalk}{data.frame containing cross walk information. Usually the output from loadxwalks().}
+\item{xwalk}{data.frame containing crosswalk information. Usually the output from \code{\link[=loadxwalks]{loadxwalks()}}.}
 
-\item{compare_mrn_numeric}{Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is TRUE by default.}
+\item{compare_mrn_numeric}{logical. Should MRNs be compared as numeric variables? Usually this is a good idea because leading 0s may have been dropped during processing. Default is whatever was used to create xwalk, which is \code{TRUE} by default.}
 
-\item{outputfile}{Name of file to write de-identified data. If NULL (the default) the data are not written, but only returned from the function. An additional option is the special value "SOURCE_", which causes the output to be written to the same filename as the input but prepended with "SOURCE_".}
+\item{outputfile}{character. Name of file to write de-identified data. If \code{NULL} (the default) the data are not written, but only returned from the function. An additional option is the special value \code{"SOURCE_"}, which causes the output to be written to the same filename as the input but prepended with "SOURCE_".}
 
-\item{usefread}{If TRUE (default), use data.table::fread and data.table::fwrite. If FALSE, use utils::read.csv and utils::write.csv. TRUE is preferable as the latter adds double quotes around almost all values when producing output file.}
+\item{usefread}{If \code{TRUE} (default), use \code{data.table::fread()} and \code{data.table::fwrite()}. If \code{FALSE}, use \code{utils::read.csv()} and \code{utils::write.csv()}. \code{TRUE} is usually preferable as \code{FALSE} results in double quotes around almost all values when producing the output file.}
 
-\item{verbose}{Higher values produce more output to console.  Default is 0, no output.}
+\item{verbose}{integer. Higher values produce more output to console.  Default is 0, no output.}
 }
 \value{
-data.frame (invisibly and even if usefread == TRUE) with variables tokenized, dateshifted, removed, and blanked, as requested.
+(invisibly) data.frame (even if \code{usefread == TRUE}) with variables tokenized, date-shifted, removed, and/or blanked, as requested.
 }
 \description{
-De-identify machine extraction data
+This function is used to de-identify a flat file using a crosswalk (with
+specific structure, see \code{loadxwalks()}).
+De-identification options include replacing a patient MRN by a tokenized MRN
+(using the crosswalk), removing a column, 'blanking' a column
+(the column remains in the dataset but all values are ""), and shifting a
+date or datetime variable (using the crosswalk).
 }
 \examples{
 dataloc <- system.file("extdata", package = "DeIDmachinedata")
