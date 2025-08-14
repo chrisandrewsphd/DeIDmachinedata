@@ -77,9 +77,9 @@ used, along with crosswalks provided by IT, to complete the data
 preparation. The functions <a href="#loadxwalks">loadxwalks()</a> and <a href="#filedeid">fileDeID()</a> are flexible enough to use with data
 extracted from many devices. The examples is this vignette are for</p>
 <ul>
+<li>Pentacam</li>
 <li>Visual Field tests extracted with FORUM</li>
 <li>OCT scans from both CIRRUS and Spectrallis devices</li>
-<li>Pentacam</li>
 </ul>
 <p>The deidentification process involves</p>
 <ol style="list-style-type: decimal">
@@ -97,6 +97,16 @@ number of days; and</li>
 MRN and Tokenized MRN and the date-shift repository. These files are
 created as part of the extraction from EPIC using code shared by the
 SOURCE Data Architect Team.</p>
+<p>Inspect the files you want to deidentify. You’ll need to
+determine</p>
+<ol style="list-style-type: lower-alpha">
+<li>the names of the variables that contain PII. The functions described
+here pass-through any columns not mentioned in the arguments from the
+input file to the output file.</li>
+<li>the format of any date or datetime variables to be shifted.</li>
+</ol>
+<p>And, of course, inspect the output files to confirm that you have
+properly used the functions so that PII is no longer present.</p>
 </div>
 <div class="section level2">
 <h2 id="loadxwalks">loadxwalks()<a class="anchor" aria-label="anchor" href="#loadxwalks"></a>
@@ -110,10 +120,134 @@ of the machine data to be deidentified.</p>
 <code class="sourceCode R"><span><span class="va">xwalk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/loadxwalks.html">loadxwalks</a></span><span class="op">(</span></span>
 <span>  tokenfile <span class="op">=</span> <span class="st">"mrncrosswalk.csv"</span>,</span>
 <span>  dateshiftfile <span class="op">=</span> <span class="st">"mrndateshift.csv"</span><span class="op">)</span></span></code></pre></div>
+<p>You’ll need to specify the proper filenames. Supply the complete path
+if they are not in the working directory.</p>
 </div>
 <div class="section level2">
 <h2 id="filedeid">fileDeID()<a class="anchor" aria-label="anchor" href="#filedeid"></a>
 </h2>
+<p><a href="#filedeid">fileDeID()</a> uses the crosswalk created by <a href="#loadxwalks">loadxwalks()</a> to perform the 3 items listed above
+on a specified file. Specifically, the patient ID is replace by a
+tokenized version, dates and datetimes are shifted, and other specified
+columns are removed.</p>
+<div class="section level3">
+<h3 id="pentacam">Pentacam<a class="anchor" aria-label="anchor" href="#pentacam"></a>
+</h3>
+<p>In our experience with Pentacam,</p>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “PAT-ID:”;</li>
+<li>the variable to be dateshifted is “Exam Date:” (with format
+YYYYMMDD: 4-digit year, 2-digit month, and 2-digit day with no
+separators); and</li>
+<li>the variables to be removed are “Last Name:”, “First Name:”,
+“D.o.Birth:”, and “Exam Comment:”.</li>
+</ol>
+<p>Thus, the standard call is</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"pentacam.csv"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"PAT-ID:"</span>,</span>
+<span>  variablestoremove <span class="op">=</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Last Name:"</span>, <span class="st">"First Name:"</span>, <span class="st">"D.o.Birth:"</span>, <span class="st">"Exam Comment:"</span><span class="op">)</span>,</span>
+<span>  datevariablestodateshift <span class="op">=</span> <span class="st">"Exam Date:"</span>,</span>
+<span>  dateformat <span class="op">=</span> <span class="st">"%Y%m%d"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span><span class="op">)</span></span></code></pre></div>
+<p>It reads the file “pentacam.csv” and writes the file
+“SOURCE_pentacam.csv”</p>
+<p>A second Pentacam example where the values are separated by
+semicolons and the datetime format is ISO 8601 (<a href="https://en.wikipedia.org/wiki/ISO_8601" class="external-link uri">https://en.wikipedia.org/wiki/ISO_8601</a>)</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"./Data/Example.csv"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"Patient ID"</span>,</span>
+<span>  variablestoremove <span class="op">=</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"First name"</span>, <span class="st">"Last name"</span>, <span class="st">"National ID"</span>, <span class="st">"OD Comment"</span>, <span class="st">"OS Comment"</span><span class="op">)</span>,</span>
+<span>  datetimevariablestodateshift <span class="op">=</span> <span class="st">"Date / Time"</span>,</span>
+<span>  datetimeformat <span class="op">=</span> <span class="st">"%Y-%m-%dT%H:%M:%OS"</span>,</span>
+<span>  separator <span class="op">=</span> <span class="st">";"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"./Data/Example_out.csv"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="visual-field-via-forum">Visual Field (via FORUM)<a class="anchor" aria-label="anchor" href="#visual-field-via-forum"></a>
+</h3>
+<p>The extraction process for visual fields often produces several flat
+files corresponding to the several test formats (24-2, 10-2, etc.).
+These can each be deidentified separately. Other than the input and
+output filenames, the calls to fileDeID() are identical.</p>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is usually “MRN” (but
+sometimes “MRN0”);</li>
+<li>the variable to be dateshifted is “TestDate” (with format YYYYMMDD:
+4-digit year, 2-digit month, and 2-digit day with no separators) or
+“TestDateTime” (with format YYYY-MM-DD HH:MM:SS: 4-digit year, hypen,
+2-digit month, hypen, 2-digit day, space, 2-digit hour (00-23), colon,
+2-digit minute, colon, 2-digit second) or both; and</li>
+<li>the variables to be removed are “TestID”, “Name”, “MRN0” (or “MRN”),
+“DOB”, “Age”, “Sex”, and “Institution”.</li>
+</ol>
+<p>Thus, the typical call is</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>    filetodeid <span class="op">=</span> <span class="st">"OPH_HVF.csv"</span>,</span>
+<span>    fd_varname_mrn <span class="op">=</span> <span class="st">"MRN"</span>,</span>
+<span>    variablestoremove <span class="op">=</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"TestID"</span>, <span class="st">"Name"</span>, <span class="st">"MRN0"</span>, <span class="st">"DOB"</span>, <span class="st">"Age"</span>, <span class="st">"Sex"</span>, <span class="st">"Institution"</span><span class="op">)</span>,</span>
+<span>    datevariablestodateshift <span class="op">=</span> <span class="st">"TestDate"</span>,</span>
+<span>    dateformat <span class="op">=</span> <span class="st">"%Y%m%d"</span>,</span>
+<span>    datetimevariablestodateshift <span class="op">=</span> <span class="st">"TestDateTime"</span>,</span>
+<span>    datetimeformat <span class="op">=</span> <span class="st">"%Y-%m-%d %H:%M:%OS"</span>,</span>
+<span>    xwalk <span class="op">=</span> <span class="va">xwalk</span>,</span>
+<span>    outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="cirrus-oct">CIRRUS OCT<a class="anchor" aria-label="anchor" href="#cirrus-oct"></a>
+</h3>
+<p>Our experience with CIRRUS OCT is limited to one instance. In that
+case,</p>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “PatientID”;</li>
+<li>the variable to be dateshifted is “StudyIDNUM” (with format
+YYYYMMDD: 4-digit year, 2-digit month, and 2-digit day with no
+separators); and</li>
+<li>the variables to be removed are filename paths:
+“DicomFilePath_ODCube”, “DicomFilePath_GlaucOUAnalysis”, and
+“DicomFilePath_CorrespondingPDF”.</li>
+</ol>
+<p>Thus, the function call is</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"cirrus_oct_rnfl.csv"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"PatientID"</span>,</span>
+<span>  variablestoremove <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"DicomFilePath_ODCube"</span>,</span>
+<span>    <span class="st">"DicomFilePath_GlaucOUAnalysis"</span>,</span>
+<span>    <span class="st">"DicomFilePath_CorrespondingPDF"</span><span class="op">)</span>,</span>
+<span>  datevariablestodateshift <span class="op">=</span> <span class="st">"StudyIDNUM"</span>,</span>
+<span>  dateformat <span class="op">=</span> <span class="st">"%Y%m%d"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_OCT_RNFL.csv"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="oct-spectralis">OCT Spectralis<a class="anchor" aria-label="anchor" href="#oct-spectralis"></a>
+</h3>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “Patient.ID”; and</li>
+<li>the variable to be dateshifted is “OCT.Scan.Date”.</li>
+</ol>
+</div>
+</div>
+<div class="section level2">
+<h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a>
+</h2>
+<div class="section level3">
+<h3 id="date-formats">Date Formats<a class="anchor" aria-label="anchor" href="#date-formats"></a>
+</h3>
+<p>If dates or datetimes are not stored in the common formats given in
+the examples here, use <code><a href="https://rdrr.io/r/base/strptime.html" class="external-link">?strptime</a></code> to create the proper
+format for your data.</p>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
