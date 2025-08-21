@@ -14,9 +14,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(DeIDmachinedata)
-```
 
 # Introduction
 
@@ -43,9 +40,19 @@ The deidentification process involves
 with a Tokenized MRN from Datavant's linkage environment;
 2. shifting actual test dates by a patient-specific, SOURCE-determined
 number of days; and
-3. removing or blanking remaining PII information.
+3. removing or blanking remaining PII information. Some examples of
+information to remove:
 
-# Before you start
+    a. demographic information: date of birth, sex. These will already be 
+    available in the SOURCE patient file.  No need to include them here
+    b. file information: some extractions indicate the location of the
+    image data in a local file system.  This is no use to SOURCE and 
+    could potentially reidentify the person.
+    c. service information: some extractions include the location of
+    the test/scan. Not technically PII, but SOURCE masks site information
+    so we would eliminate this column on our end if you didn't.
+
+## Before you start
 
 Get two files from your IT. These files are the crosswalk between the 
 MRN and Tokenized MRN and the date-shift repository.  These files
@@ -59,20 +66,39 @@ here pass-through any columns not mentioned in the arguments from
 the input file to the output file.
 b. the format of any date or datetime variables to be shifted.
 
-And,
-of course, inspect the output files to confirm that you have
+Install the R package "DeIDmachinedata" from GitHub:
+
+```{r install, eval = FALSE}
+install.packages("remotes")
+remotes::install_github("chrisandrewsphd/DeIDmachinedata")
+```
+
+
+## After you finish
+
+Of course, inspect the output files to confirm that you have
 properly used the functions so that PII is no longer present.
+Then deliver the files to SOURCE as you have delivered other
+files.
 
+# Using DeIDmachinedata
 
-# loadxwalks()
+Within R, load the R library:
 
-[loadxwalks()] reads the two files and creates a data.frame in R.
+```{r setup}
+library(DeIDmachinedata)
+```
+
+## loadxwalks()
+
+loadxwalks() reads the two files provided by IT and creates a data.frame in R.
 The input files can be in various formats, but the resulting 
 data.frame has the structure expected by [fileDeID()].
-This function call is used regardless of the machine data to be
+This function call is used regardless of the type of machine data to be
 deidentified.
 
-A typical call is
+A typical call creates the data.frame "xwalk" in your environment:
+
 
 ```{r eval = FALSE}
 xwalk <- loadxwalks(
@@ -81,9 +107,18 @@ xwalk <- loadxwalks(
 ```
 
 You'll need to specify the proper filenames.  Supply the complete
-path if they are not in the working directory.
+path if they are not in the R working directory.
 
-# fileDeID()
+If you are interested in this object, you can run a few lines of R code
+
+```{r eval = FALSE}
+# OPTIONAL
+ls() # list objects in the environment; will include "xwalk"
+
+head(xwalk) # display the first 6 lines of xwalk
+```
+
+## fileDeID()
 
 [fileDeID()] uses the crosswalk created by 
 [loadxwalks()] to perform the 3 items listed above on a specified file.
@@ -91,13 +126,13 @@ Specifically, the patient ID is replace by a tokenized version, dates
 and datetimes are shifted, and other specified columns are removed.
 
 
-## Pentacam
+### Pentacam
 
 In our experience with Pentacam,
 
 1. the variable containing the patient's MRN is "PAT-ID:";
 2. the variable to be dateshifted is "Exam Date:"
-(with format YYYYMMDD:
+(with format "%Y%m%d":
 4-digit year, 2-digit month, and 2-digit day with no separators); and
 3. the variables to be removed are "Last Name:", "First Name:", "D.o.Birth:",
 and "Exam Comment:".
@@ -118,7 +153,7 @@ fileDeID(
 
 It reads the file "pentacam.csv" and writes the file "SOURCE_pentacam.csv"
 
-A second Pentacam example where the values are separated by semicolons
+A second Pentacam example where the variables are separated by semicolons
 and the datetime format is ISO 8601 (https://en.wikipedia.org/wiki/ISO_8601)
 
 ```{r eval = FALSE}
@@ -135,19 +170,20 @@ fileDeID(
 ```
 
 
-## Visual Field (via FORUM)
+### Visual Field (via FORUM)
 
 The extraction process for visual fields often produces several flat files
 corresponding to the several test formats (24-2, 10-2, etc.). These can
 each be deidentified separately.  Other than the input and output filenames,
 the calls to fileDeID() are identical.
 
-1. the variable containing the patient's MRN is usually "MRN" (but sometimes "MRN0");
+1. the variable containing the patient's MRN is usually "MRN"
+(but sometimes "MRN0");
 2. the variable to be dateshifted is "TestDate"
-(with format YYYYMMDD:
+(with format "%Y%m%d":
 4-digit year, 2-digit month, and 2-digit day with no separators)
 or "TestDateTime" 
-(with format YYYY-MM-DD HH:MM:SS:
+(with format "%Y-%m-%d %H:%M:%OS":
 4-digit year, hypen, 2-digit month, hypen, 2-digit day, space,
 2-digit hour (00-23), colon, 2-digit minute, colon, 2-digit second)
 or both; and
@@ -171,13 +207,13 @@ fileDeID(
 ```
 
 
-## CIRRUS OCT
+### CIRRUS OCT
 
 Our experience with CIRRUS OCT is limited to one instance.  In that case,
 
 1. the variable containing the patient's MRN is "PatientID";
 2. the variable to be dateshifted is "StudyIDNUM"
-(with format YYYYMMDD:
+(with format "%Y%m%d":
 4-digit year, 2-digit month, and 2-digit day with no separators); and
 3. the variables to be removed are filename paths: "DicomFilePath_ODCube",
 "DicomFilePath_GlaucOUAnalysis", and "DicomFilePath_CorrespondingPDF".
@@ -199,12 +235,27 @@ fileDeID(
 ```
 
 
-## OCT Spectralis
+### OCT Spectralis
 
 1. the variable containing the patient's MRN is "Patient.ID"; and
 2. the variable to be dateshifted is "OCT.Scan.Date".
 
-# Details
+### HFA via Elze Software
+
+1. the variable containing the patient's MRN is "id"; and
+2. the variable to be dateshifted is "examtesttime"
+(with format "%y%m%d%H%M":
+2-digit year, 2-digit month, 2-digit day; 2-digit hour; and 2-digit minute
+with no separators)
+3. several variables to remove including date of birth, sex,
+a second exam time variable that looks like an internal
+SAS-type representation of the datetime, institution, and
+two file paths.
+
+# Random Package Details
+
+Both functions have help pages. Use ?loadxwalks and ?fileDeID to see
+the complete list of arguments.
 
 ## Date Formats
 
