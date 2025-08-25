@@ -284,6 +284,123 @@ exam time variable that looks like an internal SAS-type representation
 of the datetime, institution, and two file paths.</li>
 </ol>
 </div>
+<div class="section level4">
+<h4 id="cirrus-via-elze-software">CIRRUS via Elze Software<a class="anchor" aria-label="anchor" href="#cirrus-via-elze-software"></a>
+</h4>
+<p>Output from a typical CIRRUS data extraction is a tab-separated
+file:</p>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “id”;</li>
+<li>the variable to be date-shifted is “timeoftest”;</li>
+<li>the variables to remove are: “male”, “age”, “birthdate”,
+“ethnicGroup”, “datadir”, “scanid”, “refid”, “cirrusserialnumber”,
+“cirrusdevicelabel”, “softwareversion”, “stationname”, and
+“filenameRawData”;</li>
+</ol>
+<p>The remaining variables that will be included in the file to transfer
+are:</p>
+<p>“righteye”, “slox”, “sloy”, “nbscans”, “bscanx”, “bscany”,
+“bscanPixelspacingWidth”, “bscanPixelspacingDepth”,
+“bscanPixelspacingHeight”, “irisPixelspacingX”, “irisPixelspacingY”,
+“sloPixelspacingX”, “sloPixelspacingY”, “zmotorpos”,
+“polarizationslider”, “signalstrength”, “scanpatternoffsetx”,
+“scanpatternoffsety”, “fixationposx”, “fixationposy”, “chinrestlocx”,
+“chinrestlocy”, “chinrestlocz”, “ocularlenspos”, “duration”,
+“rotationangletoref”, and “lsoquality”</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ddd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_5LineRaster.tsv"</span>,</span>
+<span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"id"</span>,</span>
+<span>  variablestoremove <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"birthdate"</span>, <span class="st">"ethnicGroup"</span>,</span>
+<span>    <span class="st">"datadir"</span>, <span class="st">"scanid"</span>, <span class="st">"refid"</span>, <span class="st">"cirrusserialnumber"</span>,</span>
+<span>    <span class="st">"cirrusdevicelabel"</span>, <span class="st">"softwareversion"</span>, <span class="st">"stationname"</span>, <span class="st">"filenameRawData"</span><span class="op">)</span>,</span>
+<span>  datetimevariablestodateshift <span class="op">=</span> <span class="st">"timeoftest"</span>,</span>
+<span>  datetimeformat <span class="op">=</span> <span class="st">"%y%m%d%H%M%S"</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span><span class="op">)</span></span></code></pre></div>
+<div class="section level5">
+<h5 id="macular-cube">Macular Cube<a class="anchor" aria-label="anchor" href="#macular-cube"></a>
+</h5>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “id”;</li>
+<li>the variable to be date-shifted is “timeoftest”;</li>
+<li>the variables to remove are: “male”, “age”, “birthdate”,
+“ethnicGroup”, “datadir”, “scanid”, “refid”, “cirrusserialnumber”,
+“cirrusdevicelabel”, “softwareversion”, “stationname”,
+“filenameRawData”, “filenameAnalysis”;</li>
+</ol>
+<p>The remaining variables that will be included in the file to transfer
+are:</p>
+<p>“righteye”,“slox”, “sloy”, “nbscans”, “bscanx”, “bscany”,
+“bscanPixelspacingWidth”, “bscanPixelspacingDepth”,
+“bscanPixelspacingHeight”, “irisPixelspacingX”, “irisPixelspacingY”,
+“sloPixelspacingX”, “sloPixelspacingY”, “zmotorpos”,
+“polarizationslider”, “signalstrength”, “scanpatternoffsetx”,
+“scanpatternoffsety”, “fixationposx”, “fixationposy”, “chinrestlocx”,
+“chinrestlocy”, “chinrestlocz”, “ocularlenspos”, “duration”,
+“rotationangletoref”, “lsoquality”, “hasRaw”, “hasAnalysis”,
+“hasGCCsegmentation”, “foveax”, “foveay”, “gccAverage”, “gccMinimum”,
+“gccSectorST”, “gccSectorS”, “gccSectorSN”, “gccSectorIN”, “gccSectorI”,
+“gccSectorIT”, “highresCentralBscanX”, “highresCentralBscanY”,
+“highresCentralBscanPixelspacingWidth”,
+“highresCentralBscanPixelspacingDepth”</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_MacularCube.tsv"</span>,</span>
+<span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"id"</span>,</span>
+<span>  variablestoremove <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"birthdate"</span>, <span class="st">"ethnicGroup"</span>,</span>
+<span>    <span class="st">"datadir"</span>, <span class="st">"scanid"</span>, <span class="st">"refid"</span>, <span class="st">"cirrusserialnumber"</span>, <span class="st">"cirrusdevicelabel"</span>,</span>
+<span>    <span class="st">"softwareversion"</span>, <span class="st">"stationname"</span>, <span class="st">"filenameRawData"</span>, <span class="st">"filenameAnalysis"</span><span class="op">)</span>,</span>
+<span>  datetimevariablestodateshift <span class="op">=</span> <span class="st">"timeoftest"</span>,</span>
+<span>  datetimeformat <span class="op">=</span> <span class="st">"%y%m%d%H%M%S"</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level5">
+<h5 id="ocular-disc-cube">Ocular Disc Cube<a class="anchor" aria-label="anchor" href="#ocular-disc-cube"></a>
+</h5>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “id”;</li>
+<li>the variable to be date-shifted is “timeoftest”;</li>
+<li>the variables to remove are: “male”, “age”, “birthdate”,
+“ethnicGroup”, “datadir”, “scanid”, “refid”, “cirrusserialnumber”,
+“cirrusdevicelabel”, “softwareversion”, “stationname”,
+“filenameRawData”, “filenameAnalysis”;</li>
+</ol>
+<p>The remaining variables that will be included in the file to transfer
+are:</p>
+<p>“righteye”, “slox”, “sloy”, “nbscans”, “bscanx”, “bscany”,
+“bscanPixelspacingWidth”, “bscanPixelspacingDepth”,
+“bscanPixelspacingHeight”, “irisPixelspacingX”, “irisPixelspacingY”,
+“sloPixelspacingX”, “sloPixelspacingY”, “zmotorpos”,
+“polarizationslider”, “signalstrength”, “scanpatternoffsetx”,
+“scanpatternoffsety”, “fixationposx”, “fixationposy”, “chinrestlocx”,
+“chinrestlocy”, “chinrestlocz”, “ocularlenspos”, “duration”,
+“rotationangletoref”, “lsoquality”, “hasRaw”, “hasAnalysis”,
+“clockhour1”, “clockhour2”, “clockhour3”, “clockhour4”, “clockhour5”,
+“clockhour6”, “clockhour7”, “clockhour8”, “clockhour9”, “clockhour10”,
+“clockhour11”, “clockhour12”, “quadrantt”, “quadrants”, “quadrantn”,
+“quadranti”, “rimarea”, “discarea”, “avgcdratio”, “avgthickness”,
+“verticalcdratio”, “cupvol”, “onhcenterx”, “onhcentery”</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_OpticDiscCube.tsv"</span>,</span>
+<span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"id"</span>,</span>
+<span>  variablestoremove <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"birthdate"</span>, <span class="st">"ethnicGroup"</span>,</span>
+<span>    <span class="st">"datadir"</span>, <span class="st">"scanid"</span>, <span class="st">"refid"</span>, <span class="st">"cirrusserialnumber"</span>, <span class="st">"cirrusdevicelabel"</span>,</span>
+<span>    <span class="st">"softwareversion"</span>, <span class="st">"stationname"</span>, <span class="st">"filenameRawData"</span>, <span class="st">"filenameAnalysis"</span><span class="op">)</span>,</span>
+<span>  datetimevariablestodateshift <span class="op">=</span> <span class="st">"timeoftest"</span>,</span>
+<span>  datetimeformat <span class="op">=</span> <span class="st">"%y%m%d%H%M%S"</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span><span class="op">)</span></span></code></pre></div>
+</div>
+</div>
 </div>
 </div>
 <div class="section level2">

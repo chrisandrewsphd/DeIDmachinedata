@@ -3,7 +3,7 @@ pkgdown: 2.1.3
 pkgdown_sha: ~
 articles:
   deidentifying_flatfile: deidentifying_flatfile.html
-last_built: 2025-08-21T15:58Z
+last_built: 2025-08-25T15:20Z
 urls:
   reference: https://chrisandrewsphd.github.io/DeIDmachinedata/reference
   article: https://chrisandrewsphd.github.io/DeIDmachinedata/articles
