@@ -7,7 +7,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -251,6 +251,123 @@ with no separators)
 a second exam time variable that looks like an internal
 SAS-type representation of the datetime, institution, and
 two file paths.
+
+
+### CIRRUS via Elze Software
+
+Output from a typical CIRRUS data extraction is a tab-separated file:
+
+1. the variable containing the patient's MRN is "id";
+2. the variable to be date-shifted is "timeoftest";
+3. the variables to remove are: "male", "age", "birthdate", "ethnicGroup",
+    "datadir", "scanid", "refid", "cirrusserialnumber",
+    "cirrusdevicelabel", "softwareversion", "stationname", and
+    "filenameRawData";
+
+The remaining variables that will be included in the file to transfer are:
+
+"righteye", "slox", "sloy", "nbscans", "bscanx", "bscany",
+"bscanPixelspacingWidth", "bscanPixelspacingDepth", "bscanPixelspacingHeight",
+"irisPixelspacingX", "irisPixelspacingY",
+"sloPixelspacingX", "sloPixelspacingY", "zmotorpos", "polarizationslider",
+"signalstrength", "scanpatternoffsetx", "scanpatternoffsety",
+"fixationposx", "fixationposy",
+"chinrestlocx", "chinrestlocy", "chinrestlocz",
+"ocularlenspos", "duration", "rotationangletoref", and "lsoquality"
+
+
+```{r eval = FALSE}
+ddd <- fileDeID(
+  filetodeid = "./Data/metadata_5LineRaster.tsv",
+  separator = "\t",
+  fd_varname_mrn = "id",
+  variablestoremove = c(
+    "male", "age", "birthdate", "ethnicGroup",
+    "datadir", "scanid", "refid", "cirrusserialnumber",
+    "cirrusdevicelabel", "softwareversion", "stationname", "filenameRawData"),
+  datetimevariablestodateshift = "timeoftest",
+  datetimeformat = "%y%m%d%H%M%S",
+  outputfile = "SOURCE_",
+  xwalk = xwalk)
+```
+
+#### Macular Cube
+
+1. the variable containing the patient's MRN is "id";
+2. the variable to be date-shifted is "timeoftest";
+3. the variables to remove are: "male", "age", "birthdate", "ethnicGroup",
+"datadir", "scanid", "refid", "cirrusserialnumber", "cirrusdevicelabel",
+"softwareversion", "stationname", "filenameRawData", "filenameAnalysis";
+
+The remaining variables that will be included in the file to transfer are:
+
+"righteye","slox", "sloy", "nbscans", "bscanx", "bscany",
+"bscanPixelspacingWidth", "bscanPixelspacingDepth", "bscanPixelspacingHeight",
+"irisPixelspacingX", "irisPixelspacingY", "sloPixelspacingX", "sloPixelspacingY",
+"zmotorpos", "polarizationslider", "signalstrength",
+"scanpatternoffsetx", "scanpatternoffsety", "fixationposx", "fixationposy",
+"chinrestlocx", "chinrestlocy", "chinrestlocz", "ocularlenspos",
+"duration", "rotationangletoref", "lsoquality",
+"hasRaw", "hasAnalysis", "hasGCCsegmentation", "foveax", "foveay",
+"gccAverage", "gccMinimum", "gccSectorST", "gccSectorS", "gccSectorSN",
+"gccSectorIN", "gccSectorI", "gccSectorIT",
+"highresCentralBscanX", "highresCentralBscanY",
+"highresCentralBscanPixelspacingWidth", "highresCentralBscanPixelspacingDepth"
+
+```{r eval = FALSE}
+fileDeID(
+  filetodeid = "./Data/metadata_MacularCube.tsv",
+  separator = "\t",
+  fd_varname_mrn = "id",
+  variablestoremove = c(
+    "male", "age", "birthdate", "ethnicGroup",
+    "datadir", "scanid", "refid", "cirrusserialnumber", "cirrusdevicelabel",
+    "softwareversion", "stationname", "filenameRawData", "filenameAnalysis"),
+  datetimevariablestodateshift = "timeoftest",
+  datetimeformat = "%y%m%d%H%M%S",
+  outputfile = "SOURCE_",
+  xwalk = xwalk)
+```
+
+#### Ocular Disc Cube
+
+1. the variable containing the patient's MRN is "id";
+2. the variable to be date-shifted is "timeoftest";
+3. the variables to remove are: "male", "age", "birthdate", "ethnicGroup",
+"datadir", "scanid", "refid", "cirrusserialnumber", "cirrusdevicelabel",
+"softwareversion", "stationname", "filenameRawData", "filenameAnalysis";
+
+The remaining variables that will be included in the file to transfer are:
+
+"righteye", "slox", "sloy", "nbscans", "bscanx", "bscany",
+"bscanPixelspacingWidth", "bscanPixelspacingDepth", "bscanPixelspacingHeight",
+"irisPixelspacingX", "irisPixelspacingY", "sloPixelspacingX", "sloPixelspacingY",
+"zmotorpos", "polarizationslider", "signalstrength",
+"scanpatternoffsetx", "scanpatternoffsety", "fixationposx", "fixationposy",
+"chinrestlocx", "chinrestlocy", "chinrestlocz", "ocularlenspos",
+"duration", "rotationangletoref", "lsoquality",
+"hasRaw", "hasAnalysis",
+"clockhour1", "clockhour2", "clockhour3", "clockhour4",
+"clockhour5", "clockhour6", "clockhour7", "clockhour8",
+"clockhour9", "clockhour10", "clockhour11", "clockhour12",
+"quadrantt", "quadrants", "quadrantn", "quadranti",
+"rimarea", "discarea", "avgcdratio", "avgthickness",
+"verticalcdratio", "cupvol", "onhcenterx", "onhcentery"
+
+```{r eval = FALSE}
+fileDeID(
+  filetodeid = "./Data/metadata_OpticDiscCube.tsv",
+  separator = "\t",
+  fd_varname_mrn = "id",
+  variablestoremove = c(
+    "male", "age", "birthdate", "ethnicGroup",
+    "datadir", "scanid", "refid", "cirrusserialnumber", "cirrusdevicelabel",
+    "softwareversion", "stationname", "filenameRawData", "filenameAnalysis"),
+  datetimevariablestodateshift = "timeoftest",
+  datetimeformat = "%y%m%d%H%M%S",
+  outputfile = "SOURCE_",
+  xwalk = xwalk)
+```
 
 # Random Package Details
 
