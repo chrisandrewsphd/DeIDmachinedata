@@ -236,6 +236,43 @@ sometimes “MRN0”);</li>
 <span>    outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
+<h4 id="spectralis-oct">Spectralis OCT<a class="anchor" aria-label="anchor" href="#spectralis-oct"></a>
+</h4>
+<p>I believe I have seen two different instances of data extracted from
+Spectralis OCT. In the first instance, the variable containing the
+patient’s MRN is “Patient.ID” and the variable to be dateshifted is
+“OCT.Scan.Date”.</p>
+<p>The second instance was using Elze’s software to extract from HEYEX.
+Output is a tab-separated file.</p>
+<ol style="list-style-type: decimal">
+<li>the variable containing the patient’s MRN is “id”;</li>
+<li>the variable to be date-shifted is “timeoftest”;</li>
+<li>the variables to remove are: “birthdate”, “male”, “timeoftestEpoch”,
+“age”, “datadir”, “deviceSerialNumber”, “softwareversion”, “hasSLO”,
+“hasOCT”, “SLOfilename”, “OCTfilename”;</li>
+</ol>
+<p>The remaining variables that will be included in the file to transfer
+are:</p>
+<p>“righteye”, “seriesDescription”, “gaze”, “sloHorizontalFieldOfView”,
+“slox”, “sloy”, “sloPixelspacingX”, “sloPixelspacingY”, “nbscans”,
+“bscanx”, “bscany”, “duration”, “sliceThickness”,
+“bscanPixelspacingWidth”, “bscanPixelspacingDepth”,
+“BScanWidthOrRadius”</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ddd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
+<span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_spectralis.tsv"</span>,</span>
+<span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
+<span>  fd_varname_mrn <span class="op">=</span> <span class="st">"id"</span>,</span>
+<span>  variablestoremove <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"birthdate"</span>, <span class="st">"male"</span>, <span class="st">"timeoftestEpoch"</span>, <span class="st">"age"</span>,</span>
+<span>    <span class="st">"datadir"</span>, <span class="st">"deviceSerialNumber"</span>,</span>
+<span>    <span class="st">"softwareversion"</span>, <span class="st">"hasSLO"</span>, <span class="st">"hasOCT"</span>, <span class="st">"SLOfilename"</span>, <span class="st">"OCTfilename"</span><span class="op">)</span>,</span>
+<span>  datetimevariablestodateshift <span class="op">=</span> <span class="st">"timeoftest"</span>,</span>
+<span>  datetimeformat <span class="op">=</span> <span class="st">"%y%m%d%H%M%S"</span>,</span>
+<span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_"</span>,</span>
+<span>  xwalk <span class="op">=</span> <span class="va">xwalk</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level4">
 <h4 id="cirrus-oct">CIRRUS OCT<a class="anchor" aria-label="anchor" href="#cirrus-oct"></a>
 </h4>
 <p>Our experience with CIRRUS OCT is limited to one instance. In that
@@ -250,7 +287,7 @@ separators); and</li>
 “DicomFilePath_CorrespondingPDF”.</li>
 </ol>
 <p>Thus, the function call is</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
 <span>  filetodeid <span class="op">=</span> <span class="st">"cirrus_oct_rnfl.csv"</span>,</span>
 <span>  fd_varname_mrn <span class="op">=</span> <span class="st">"PatientID"</span>,</span>
@@ -262,14 +299,6 @@ separators); and</li>
 <span>  dateformat <span class="op">=</span> <span class="st">"%Y%m%d"</span>,</span>
 <span>  xwalk <span class="op">=</span> <span class="va">xwalk</span>,</span>
 <span>  outputfile <span class="op">=</span> <span class="st">"SOURCE_OCT_RNFL.csv"</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level4">
-<h4 id="oct-spectralis">OCT Spectralis<a class="anchor" aria-label="anchor" href="#oct-spectralis"></a>
-</h4>
-<ol style="list-style-type: decimal">
-<li>the variable containing the patient’s MRN is “Patient.ID”; and</li>
-<li>the variable to be dateshifted is “OCT.Scan.Date”.</li>
-</ol>
 </div>
 <div class="section level4">
 <h4 id="hfa-via-elze-software">HFA via Elze Software<a class="anchor" aria-label="anchor" href="#hfa-via-elze-software"></a>
@@ -307,7 +336,7 @@ are:</p>
 “scanpatternoffsety”, “fixationposx”, “fixationposy”, “chinrestlocx”,
 “chinrestlocy”, “chinrestlocz”, “ocularlenspos”, “duration”,
 “rotationangletoref”, and “lsoquality”</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ddd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
 <span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_5LineRaster.tsv"</span>,</span>
 <span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
@@ -346,7 +375,7 @@ are:</p>
 “gccSectorIT”, “highresCentralBscanX”, “highresCentralBscanY”,
 “highresCentralBscanPixelspacingWidth”,
 “highresCentralBscanPixelspacingDepth”</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
 <span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_MacularCube.tsv"</span>,</span>
 <span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
@@ -386,7 +415,7 @@ are:</p>
 “clockhour11”, “clockhour12”, “quadrantt”, “quadrants”, “quadrantn”,
 “quadranti”, “rimarea”, “discarea”, “avgcdratio”, “avgthickness”,
 “verticalcdratio”, “cupvol”, “onhcenterx”, “onhcentery”</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/fileDeID.html">fileDeID</a></span><span class="op">(</span></span>
 <span>  filetodeid <span class="op">=</span> <span class="st">"./Data/metadata_OpticDiscCube.tsv"</span>,</span>
 <span>  separator <span class="op">=</span> <span class="st">"\t"</span>,</span>
@@ -427,7 +456,7 @@ format for your data.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
