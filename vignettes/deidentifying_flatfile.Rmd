@@ -85,7 +85,7 @@ files.
 
 Within R, load the R library:
 
-```{r setup}
+```{r setup, eval = FALSE}
 library(DeIDmachinedata)
 ```
 
@@ -207,6 +207,55 @@ fileDeID(
 ```
 
 
+### Spectralis OCT
+
+I believe I have seen two different instances of data extracted from Spectralis OCT. In the first instance, the variable containing the patient's MRN is "Patient.ID" and the variable to be dateshifted is "OCT.Scan.Date".
+
+The second instance was using Elze's software to extract from HEYEX.
+Output is a tab-separated file.
+
+1. the variable containing the patient's MRN is "id";
+2. the variable to be date-shifted is "timeoftest";
+3. the variables to remove are:
+    "birthdate", "male", "timeoftestEpoch", "age",
+    "datadir", "deviceSerialNumber",
+    "softwareversion", "hasSLO", "hasOCT", "SLOfilename", "OCTfilename";
+
+The remaining variables that will be included in the file to transfer are:
+
+"righteye",
+"seriesDescription",
+"gaze",
+"sloHorizontalFieldOfView",
+"slox",
+"sloy",
+"sloPixelspacingX",
+"sloPixelspacingY",
+"nbscans",
+"bscanx",
+"bscany",
+"duration",
+"sliceThickness",
+"bscanPixelspacingWidth",
+"bscanPixelspacingDepth",
+"BScanWidthOrRadius"
+
+```{r eval = FALSE}
+ddd <- fileDeID(
+  filetodeid = "./Data/metadata_spectralis.tsv",
+  separator = "\t",
+  fd_varname_mrn = "id",
+  variablestoremove = c(
+    "birthdate", "male", "timeoftestEpoch", "age",
+    "datadir", "deviceSerialNumber",
+    "softwareversion", "hasSLO", "hasOCT", "SLOfilename", "OCTfilename"),
+  datetimevariablestodateshift = "timeoftest",
+  datetimeformat = "%y%m%d%H%M%S",
+  outputfile = "SOURCE_",
+  xwalk = xwalk)
+```
+
+
 ### CIRRUS OCT
 
 Our experience with CIRRUS OCT is limited to one instance.  In that case,
@@ -235,10 +284,6 @@ fileDeID(
 ```
 
 
-### OCT Spectralis
-
-1. the variable containing the patient's MRN is "Patient.ID"; and
-2. the variable to be dateshifted is "OCT.Scan.Date".
 
 ### HFA via Elze Software
 
