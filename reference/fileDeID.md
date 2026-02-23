@@ -152,38 +152,8 @@ deidfile <- fileDeID(
 #> [13] "Rs F (mm):"     "Rh F (mm):"     "Rv F (mm):"     "K1 F (D):"     
 #> [17] "K2 F (D):"      "Rm F (mm):"     "Km F (D):"      "Axis F (flat):"
 #> [21] "Astig F (D):"   "R Per F (mm)"   "R Min (mm)"    
-#> 3 rows read from /home/runner/work/_temp/Library/DeIDmachinedata/extdata/pentacam_UCH.csv
-#>   Pat-ID: Exam Date: Exam Time: Exam Eye: Exam Type: Exam Comment:
-#> 1       2   1/2/2020        123        OS      penta           PII
-#> 2       2  1/31/2020        234        OS      penta           PII
-#> 3       9 12/31/1999        321        OD      penta           PII
-#>               Status Error Rf F (mm): Rs F (mm): Rh F (mm): Rv F (mm):
-#> 1               Good  None        9.3       <NA>        4.9       <NA>
-#> 2 Good, Really Good!  None        9.3        8.7        4.1        6.3
-#> 3                Bad   Yes          9        8.7       <NA>        6.3
-#>   K1 F (D): K2 F (D): Rm F (mm): Km F (D): Axis F (flat): Astig F (D):
-#> 1        50        60        8.1        35             75           10
-#> 2        40        50          8        30             80           30
-#> 3         0         0        7.9        10             20           30
-#>   R Per F (mm) R Min (mm)
-#> 1            5          9
-#> 2          5.5         10
-#> 3          1.1          6
-#> Summary of MRN matching index
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
-#>       2       2       2       2       2       2       1 
-#> Number of patients with each number of test (original MRN)
-#> 
-#> 1 2 
-#> 1 1 
-#> Number of patients with each number of test (tokenized MRN)
-#> 
-#> 1 2 
-#> 1 1 
 #>      1 tokenized mrns missing of      3
 #> Shifting Exam Date:
-#> [1] "1/2/2020"   "1/31/2020"  "12/31/1999"
-#> [1] "2020-01-06" "2020-02-04" NA          
 deidfile # Note last test was on a person not in the crosswalk
 #>   Pat-ID: Exam Date: Exam Time: Exam Eye: Exam Type: Exam Comment:
 #> 1       b 2020-01-06        123        OS      penta          <NA>
