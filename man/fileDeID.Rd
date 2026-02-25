@@ -13,6 +13,7 @@ fileDeID(
   dateformat = "\%Y-\%m-\%d",
   datetimevariablestodateshift = character(0),
   datetimeformat = "\%Y-\%m-\%d \%H:\%M:\%OS",
+  epochvariablestodateshift = character(0),
   separator = ",",
   separator_out = ",",
   xwalk,
@@ -39,6 +40,11 @@ fileDeID(
 
 \item{datetimeformat}{character. Format of datetime variables in the extraction file.  Default is "\%Y-\%m-\%d \%H:\%M:\%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.}
 
+\item{epochvariablestodateshift}{character vector. Names of variables that represent
+Unix epoch time (seconds since 1970-01-01 00:00:00 UTC) and should be shifted.
+Values may be stored as integer seconds or floating-point seconds (allowing
+fractional seconds). Default is \code{character(0)}, no variables to shift.}
+
 \item{separator}{character. Field separator in filetodeid (input file). Default is \code{","}.}
 
 \item{separator_out}{character. Field separator to use in outputfile. Default is \code{","}.}
@@ -62,7 +68,16 @@ specific structure, see \code{loadxwalks()}).
 De-identification options include replacing a patient MRN by a tokenized MRN
 (using the crosswalk), removing a column, 'blanking' a column
 (the column remains in the dataset but all values are ""), and shifting a
-date or datetime variable (using the crosswalk).
+date, datetime, or Unix epoch time variable (using the crosswalk).
+}
+\details{
+Date variables are shifted by adding \code{SHIFT_NUM} days.
+Datetime variables are shifted by adding \code{86400 * SHIFT_NUM} seconds.
+Epoch variables are shifted by adding \code{86400 * SHIFT_NUM} seconds directly
+to the numeric epoch value.
+
+All epoch values are assumed to represent seconds since
+1970-01-01 00:00:00 UTC. No timezone conversion is performed.
 }
 \examples{
 dataloc <- system.file("extdata", package = "DeIDmachinedata")
@@ -80,5 +95,5 @@ deidfile <- fileDeID(
   xwalk = xwalk,
   outputfile = NULL,
   verbose = 2)
-deidfile # Note last test was on a person not in the crosswalk
+deidfile
 }

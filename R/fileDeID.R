@@ -53,7 +53,6 @@
 #'   variablestoremove = c("Last Name:", "First Name:", "D.o.Birth:"),
 #'   variablestoblank = "Exam Comment:",
 #'   datevariablestodateshift = "Exam Date:",
-#'   epochvariablestodateshift = "ExamTimeUnix",
 #'   dateformat = "%m/%d/%Y",
 #'   xwalk = xwalk,
 #'   outputfile = NULL,
