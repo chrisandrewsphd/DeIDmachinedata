@@ -4,12 +4,12 @@ specific structure, see loadxwalks()).
 De-identification options include replacing a patient MRN by a tokenized MRN
 (using the crosswalk), removing a column, 'blanking' a column
 (the column remains in the dataset but all values are &quot;&quot;), and shifting a
-date or datetime variable (using the crosswalk)."><meta property="og:description" content="This function is used to de-identify a flat file using a crosswalk (with
+date, datetime, or Unix epoch time variable (using the crosswalk)."><meta property="og:description" content="This function is used to de-identify a flat file using a crosswalk (with
 specific structure, see loadxwalks()).
 De-identification options include replacing a patient MRN by a tokenized MRN
 (using the crosswalk), removing a column, 'blanking' a column
 (the column remains in the dataset but all values are &quot;&quot;), and shifting a
-date or datetime variable (using the crosswalk)."></head><body>
+date, datetime, or Unix epoch time variable (using the crosswalk)."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ date or datetime variable (using the crosswalk)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DeIDmachinedata</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -30,6 +30,7 @@ date or datetime variable (using the crosswalk)."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/deidentifying_flatfile.html">Deidentifying a Flat File</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -51,7 +52,7 @@ specific structure, see <code><a href="loadxwalks.html">loadxwalks()</a></code>)
 De-identification options include replacing a patient MRN by a tokenized MRN
 (using the crosswalk), removing a column, 'blanking' a column
 (the column remains in the dataset but all values are ""), and shifting a
-date or datetime variable (using the crosswalk).</p>
+date, datetime, or Unix epoch time variable (using the crosswalk).</p>
     </div>
 
     <div class="section level2">
@@ -65,6 +66,7 @@ date or datetime variable (using the crosswalk).</p>
 <span>  dateformat <span class="op">=</span> <span class="st">"%Y-%m-%d"</span>,</span>
 <span>  datetimevariablestodateshift <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  datetimeformat <span class="op">=</span> <span class="st">"%Y-%m-%d %H:%M:%OS"</span>,</span>
+<span>  epochvariablestodateshift <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">0</span><span class="op">)</span>,</span>
 <span>  separator <span class="op">=</span> <span class="st">","</span>,</span>
 <span>  separator_out <span class="op">=</span> <span class="st">","</span>,</span>
 <span>  <span class="va">xwalk</span>,</span>
@@ -111,6 +113,13 @@ date or datetime variable (using the crosswalk).</p>
 <dd><p>character. Format of datetime variables in the extraction file.  Default is "%Y-%m-%d %H:%M:%OS" corresponding to 4-digit year, hyphen, 2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon, 2-digit minute, colon 2-digit second.</p></dd>
 
 
+<dt id="arg-epochvariablestodateshift">epochvariablestodateshift<a class="anchor" aria-label="anchor" href="#arg-epochvariablestodateshift"></a></dt>
+<dd><p>character vector. Names of variables that represent
+Unix epoch time (seconds since 1970-01-01 00:00:00 UTC) and should be shifted.
+Values may be stored as integer seconds or floating-point seconds (allowing
+fractional seconds). Default is <code>character(0)</code>, no variables to shift.</p></dd>
+
+
 <dt id="arg-separator">separator<a class="anchor" aria-label="anchor" href="#arg-separator"></a></dt>
 <dd><p>character. Field separator in filetodeid (input file). Default is <code>","</code>.</p></dd>
 
@@ -143,6 +152,15 @@ date or datetime variable (using the crosswalk).</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>(invisibly) data.frame (even if <code>usefread == TRUE</code>) with variables tokenized, date-shifted, removed, and/or blanked, as requested.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Date variables are shifted by adding <code>SHIFT_NUM</code> days.
+Datetime variables are shifted by adding <code>86400 * SHIFT_NUM</code> seconds.
+Epoch variables are shifted by adding <code>86400 * SHIFT_NUM</code> seconds directly
+to the numeric epoch value.</p>
+<p>All epoch values are assumed to represent seconds since
+1970-01-01 00:00:00 UTC. No timezone conversion is performed.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -171,7 +189,7 @@ date or datetime variable (using the crosswalk).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [21] "Astig F (D):"   "R Per F (mm)"   "R Min (mm)"    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      1 tokenized mrns missing of      3</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Shifting Exam Date:</span>
-<span class="r-in"><span><span class="va">deidfile</span> <span class="co"># Note last test was on a person not in the crosswalk</span></span></span>
+<span class="r-in"><span><span class="va">deidfile</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Pat-ID: Exam Date: Exam Time: Exam Eye: Exam Type: Exam Comment:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1       b 2020-01-06        123        OS      penta          &lt;NA&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2       b 2020-02-04        234        OS      penta          &lt;NA&gt;</span>
@@ -195,7 +213,7 @@ date or datetime variable (using the crosswalk).</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Chris Andrews.</p>
+  <p>Developed by Chris Andrews, Tobias Elze.</p>
 </div>
 
 <div class="pkgdown-footer-right">

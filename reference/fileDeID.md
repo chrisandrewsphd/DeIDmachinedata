@@ -6,7 +6,7 @@ specific structure, see
 De-identification options include replacing a patient MRN by a tokenized
 MRN (using the crosswalk), removing a column, 'blanking' a column (the
 column remains in the dataset but all values are ""), and shifting a
-date or datetime variable (using the crosswalk).
+date, datetime, or Unix epoch time variable (using the crosswalk).
 
 ## Usage
 
@@ -20,6 +20,7 @@ fileDeID(
   dateformat = "%Y-%m-%d",
   datetimevariablestodateshift = character(0),
   datetimeformat = "%Y-%m-%d %H:%M:%OS",
+  epochvariablestodateshift = character(0),
   separator = ",",
   separator_out = ",",
   xwalk,
@@ -75,6 +76,13 @@ fileDeID(
   2-digit month, hyphen, 2-digit day, space, 2-digit (24) hour, colon,
   2-digit minute, colon 2-digit second.
 
+- epochvariablestodateshift:
+
+  character vector. Names of variables that represent Unix epoch time
+  (seconds since 1970-01-01 00:00:00 UTC) and should be shifted. Values
+  may be stored as integer seconds or floating-point seconds (allowing
+  fractional seconds). Default is `character(0)`, no variables to shift.
+
 - separator:
 
   character. Field separator in filetodeid (input file). Default is
@@ -126,6 +134,16 @@ fileDeID(
 (invisibly) data.frame (even if `usefread == TRUE`) with variables
 tokenized, date-shifted, removed, and/or blanked, as requested.
 
+## Details
+
+Date variables are shifted by adding `SHIFT_NUM` days. Datetime
+variables are shifted by adding `86400 * SHIFT_NUM` seconds. Epoch
+variables are shifted by adding `86400 * SHIFT_NUM` seconds directly to
+the numeric epoch value.
+
+All epoch values are assumed to represent seconds since 1970-01-01
+00:00:00 UTC. No timezone conversion is performed.
+
 ## Examples
 
 ``` r
@@ -154,7 +172,7 @@ deidfile <- fileDeID(
 #> [21] "Astig F (D):"   "R Per F (mm)"   "R Min (mm)"    
 #>      1 tokenized mrns missing of      3
 #> Shifting Exam Date:
-deidfile # Note last test was on a person not in the crosswalk
+deidfile
 #>   Pat-ID: Exam Date: Exam Time: Exam Eye: Exam Type: Exam Comment:
 #> 1       b 2020-01-06        123        OS      penta          <NA>
 #> 2       b 2020-02-04        234        OS      penta          <NA>
