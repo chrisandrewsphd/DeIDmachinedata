@@ -57,6 +57,7 @@ Inspect the files you want to deidentify. You’ll need to determine
 Install the R package “DeIDmachinedata” from GitHub:
 
 ``` r
+
 install.packages("remotes")
 remotes::install_github("chrisandrewsphd/DeIDmachinedata")
 ```
@@ -72,6 +73,7 @@ files to SOURCE as you have delivered other files.
 Within R, load the R library:
 
 ``` r
+
 library(DeIDmachinedata)
 ```
 
@@ -86,6 +88,7 @@ deidentified.
 A typical call creates the data.frame “xwalk” in your environment:
 
 ``` r
+
 xwalk <- loadxwalks(
   tokenfile = "mrncrosswalk.csv",
   dateshiftfile = "mrndateshift.csv")
@@ -97,6 +100,7 @@ they are not in the R working directory.
 If you are interested in this object, you can run a few lines of R code
 
 ``` r
+
 # OPTIONAL
 ls() # list objects in the environment; will include "xwalk"
 
@@ -125,6 +129,7 @@ In our experience with Pentacam,
 Thus, the standard call is
 
 ``` r
+
 fileDeID(
   filetodeid = "pentacam.csv",
   fd_varname_mrn = "PAT-ID:",
@@ -144,6 +149,7 @@ semicolons and the datetime format is ISO 8601
 (<https://en.wikipedia.org/wiki/ISO_8601>)
 
 ``` r
+
 fileDeID(
   filetodeid = "./Data/Example.csv",
   fd_varname_mrn = "Patient ID",
@@ -176,6 +182,7 @@ output filenames, the calls to fileDeID() are identical.
 Thus, the typical call is
 
 ``` r
+
 fileDeID(
     filetodeid = "OPH_HVF.csv",
     fd_varname_mrn = "MRN",
@@ -214,6 +221,7 @@ are:
 “bscanPixelspacingWidth”, “bscanPixelspacingDepth”, “BScanWidthOrRadius”
 
 ``` r
+
 ddd <- fileDeID(
   filetodeid = "./Data/metadata_spectralis.tsv",
   separator = "\t",
@@ -243,6 +251,7 @@ Our experience with CIRRUS OCT is limited to one instance. In that case,
 Thus, the function call is
 
 ``` r
+
 fileDeID(
   filetodeid = "cirrus_oct_rnfl.csv",
   fd_varname_mrn = "PatientID",
@@ -290,6 +299,7 @@ are:
 “rotationangletoref”, and “lsoquality”
 
 ``` r
+
 ddd <- fileDeID(
   filetodeid = "./Data/metadata_5LineRaster.tsv",
   separator = "\t",
@@ -331,6 +341,7 @@ are:
 “highresCentralBscanPixelspacingDepth”
 
 ``` r
+
 fileDeID(
   filetodeid = "./Data/metadata_MacularCube.tsv",
   separator = "\t",
@@ -372,6 +383,7 @@ are:
 “verticalcdratio”, “cupvol”, “onhcenterx”, “onhcentery”
 
 ``` r
+
 fileDeID(
   filetodeid = "./Data/metadata_OpticDiscCube.tsv",
   separator = "\t",
